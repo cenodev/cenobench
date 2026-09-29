@@ -304,7 +304,7 @@ def exec_base_ok(r, min_tests):
     return bool(r["parsed"]) and r["rc"] == 0 and r["failed"] == 0 and r["tests"] >= min_tests
 
 def grade_exec(ev, ws, is_self_test=False):
-    """Returns (pass, detail). Applies the discrimination invariant when is_self_test."""
+    """Returns (pass, detail, subscore). Applies the discrimination invariant when is_self_test."""
     ex = ev.get("exec", {})
     match = ex.get("match")
     min_tests = ex.get("min_tests", 1)
@@ -330,7 +330,7 @@ def grade_exec(ev, ws, is_self_test=False):
         detail = f"base tests={base['tests']} failed={base['failed']}; mutants killed {killed}/{len(mutants)}"
         if results: detail += " [" + ", ".join(results) + "]"
         if not base["parsed"]: detail += f"; base error: {base['error'][:120]}"
-        return ok, detail[:600]
+        return ok, detail[:600], {"kind": "mutants", "pass": killed, "total": len(mutants), "base_ok": base_ok}
 
     if is_self_test and os.path.isdir(reference):
         overlay(reference, ws)
@@ -341,7 +341,8 @@ def grade_exec(ev, ws, is_self_test=False):
     ok = exec_base_ok(r, min_tests)
     detail = f"hidden tests={r['tests']} failed={r['failed']}"
     if not r["parsed"]: detail += f"; {r['error'][:120]}"
-    return ok, detail[:600]
+    sub = {"kind": "hidden_tests", "pass": max(0, r["tests"] - r["failed"]), "total": r["tests"]}
+    return ok, detail[:600], sub
 
 # ------------------------------------------------------------------ self-test
 
@@ -403,7 +404,7 @@ def self_test(evals):
                     overlay(os.path.join(fixture, "workspace"), ws)
                     for o in overlays:
                         overlay(o, ws)
-                    ok, detail = grade_exec(ev, ws, is_self_test=False)
+                    ok, detail, _sub = grade_exec(ev, ws, is_self_test=False)
                     if ok != expect_ok:
                         fail(ev, f"{name}: expected {'pass' if expect_ok else 'fail'}, got {'pass' if ok else 'fail'} ({detail})")
                 finally:
@@ -474,6 +475,7 @@ def run_one(ev, cmd, judge_cmd, skill_text):
     row = {"id": ev["id"], "benchmark": ev["_benchmark"], "track": ev.get("track"), "kind": ev.get("kind"),
            "seconds": round(secs, 1), "rc": rc, "reply": reply[-4000:], "files": changed}
     dead = rc != 0 or (len(reply.strip()) < 400 and DEAD_RE.search(reply))
+    sub = None
     try:
         if dead:
             row.update(pass_=False, detail=(err or reply[-200:]).strip()[:200], dead=True)
@@ -487,17 +489,22 @@ def run_one(ev, cmd, judge_cmd, skill_text):
                 row.update(pass_=False, detail=f"missing deliverable: {deliverable}")
             else:
                 restore_frozen(ev, ws)
-                ok, detail = grade_exec(ev, ws, is_self_test=False)
+                ok, detail, sub = grade_exec(ev, ws, is_self_test=False)
                 row.update(pass_=ok, detail=detail)
         elif "grader" in ev:
             ok, detail = grade_deterministic(ev, reply)
+            sub = {"kind": "binary", "pass": int(ok), "total": 1}
             row.update(pass_=ok, detail=detail)
         else:
             ok, per, detail = judge(ev, evidence(ev, reply, seed, after), judge_cmd)
+            sub = {"kind": "conditions", "pass": sum(per) if per else 0, "total": len(ev["expect"])}
             row.update(pass_=bool(ok), expects=per, detail=detail, ungraded=(ok is None))
     finally:
         shutil.rmtree(ws, ignore_errors=True)
     row["pass"] = row.pop("pass_")
+    row["weight"] = ev.get("weight", 1)
+    if sub is not None:
+        row["subscore"] = sub
     return row
 
 # ------------------------------------------------------------------ main
@@ -530,6 +537,7 @@ def main():
     if not cmd: ap.error("give --executor and --model, or --cmd")
 
     evals = load_evals(a.benchmark, a.track, a.only, None, benchmarks)
+    all_evals = load_evals(a.benchmark, None, None, None, benchmarks)
     if not self_test(evals): sys.exit("self-test failed; fix the evals before running")
 
     skill_text = None
@@ -539,25 +547,32 @@ def main():
     os.makedirs(RESULTS_DIR, exist_ok=True)
     out_path = result_path(a.name)
     prev = json.load(open(out_path)) if a.resume and os.path.exists(out_path) else None
-    current = {e["id"] for e in evals}
+    current = {e["id"] for e in all_evals}
     rows = {r["id"]: r for r in (prev or {}).get("rows", []) if not r.get("dead") and not r.get("ungraded") and r["id"] in current}
     todo = [e for e in evals if e["id"] not in rows]
     print(f"{a.name}: {len(todo)} evals to run, {len(rows)} kept\n  executor: {cmd}\n  judge:    {a.judge_cmd}")
 
-    started = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
-    tracks = sorted({e["track"] for e in evals if e.get("track")})
+    started = (prev or {}).get("started") or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    tracks = sorted({e["track"] for e in all_evals if e.get("track")})
 
     def save():
         by = {}
         for t in tracks:
             rs = [r for r in rows.values() if r.get("track") == t]
-            tot = sum(1 for e in evals if e.get("track") == t)
-            by[t] = {"pass": sum(1 for r in rs if r["pass"]), "total": tot}
+            es = [e for e in all_evals if e.get("track") == t]
+            w_total = sum(e.get("weight", 1) for e in es)
+            w_pass = sum(r.get("weight", 1) for r in rs if r["pass"])
+            by[t] = {"pass": sum(1 for r in rs if r["pass"]), "total": len(es),
+                     "score": round(100 * w_pass / w_total, 1) if w_total else 0.0}
+        w_total = sum(e.get("weight", 1) for e in all_evals)
+        w_pass = sum(r.get("weight", 1) for r in rows.values() if r["pass"])
         doc = {"name": a.name, "model": a.model or a.name, "harness": a.harness or a.executor or "custom",
                "skill": a.skill, "executor_cmd": cmd, "judge_cmd": a.judge_cmd, "started": started,
                "benchmarks": {bid: {"version": b.get("version"), "manifest": b["manifest"]}
-                              for bid, b in benchmarks.items() if any(e["_benchmark"] == bid for e in evals)},
-               "tracks": by, "total": {"pass": sum(v["pass"] for v in by.values()), "total": sum(v["total"] for v in by.values())},
+                              for bid, b in benchmarks.items() if any(e["_benchmark"] == bid for e in all_evals)},
+               "tracks": by,
+               "total": {"pass": sum(1 for r in rows.values() if r["pass"]), "total": len(all_evals),
+                         "score": round(100 * w_pass / w_total, 1) if w_total else 0.0},
                "rows": sorted(rows.values(), key=lambda r: r["id"])}
         json.dump(doc, open(out_path, "w"), indent=1)
     save()
@@ -569,7 +584,8 @@ def main():
             print(f"  {flag}  {r['id']:36} {r['seconds']:6.0f}s  {r.get('detail', '')[:110]}")
     doc = json.load(open(out_path))
     dead = sum(1 for r in doc["rows"] if r.get("dead") or r.get("ungraded"))
-    print(f"\n{a.name}: {doc['total']['pass']}/{doc['total']['total']}  " + "  ".join(f"{t} {v['pass']}/{v['total']}" for t, v in doc["tracks"].items()))
+    print(f"\n{a.name}: score {doc['total']['score']}% ({doc['total']['pass']}/{doc['total']['total']})  "
+          + "  ".join(f"{t} {v['pass']}/{v['total']} {v['score']}%" for t, v in doc["tracks"].items()))
     if dead: print(f"  {dead} dead or ungraded (rerun with --resume; not counted as failures)")
     print(f"wrote {os.path.relpath(out_path, ROOT)}; run `python3 build.py` to refresh the index")
 

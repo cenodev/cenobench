@@ -1,0 +1,57 @@
+id: build-03-merkle-airdrop
+benchmark: dapp-lifecycle
+track: build
+title: Merkle airdrop with sorted-pair proofs
+kind: exec
+summary: Implement a Merkle airdrop from spec. Hidden tests build a three-leaf tree and check proofs, double claims and transfer targets.
+prompt: |
+  A token distribution needs a Merkle airdrop.
+
+  Write `src/MerkleAirdrop.sol` containing a contract named `MerkleAirdrop`.
+
+  Constructor: `constructor(address token_, bytes32 merkleRoot_)`, reverting on the zero token
+  address. Deployer is the owner (no owner-only functions are required). The token is an ERC-20
+  with base units (see `src/IERC20.sol`, `src/MockERC20.sol`).
+
+  Hashing rules — follow them exactly:
+
+  - Leaf: `keccak256(abi.encode(index, account, amount))` where `index` is `uint256`,
+    `account` is `address`, `amount` is `uint256`. No packed encoding.
+  - Internal node: sort the two children by their numeric value (lower first), then
+    `keccak256(abi.encode(lower, higher))`.
+  - A proof is the list of sibling hashes from the leaf up to the root.
+
+  Public interface:
+
+  - `token() view returns (address)`
+  - `merkleRoot() view returns (bytes32)`
+  - `claimed(uint256) view returns (bool)`
+  - `isClaimed(uint256 index) view returns (bool)`
+  - `claim(uint256 index, address account, uint256 amount, bytes32[] calldata proof)`
+    - Reverts if `index` was already claimed, if `account` is the zero address, if
+      `amount == 0`, or if the proof does not verify against the root.
+    - Marks the index as claimed **before** transferring.
+    - Transfers `amount` of the token to `account`.
+    - Emits `Claimed(index, account, amount)`.
+
+  Solidity 0.8.x. Put the implementation in `src/MerkleAirdrop.sol`; helpers may live in the
+  same file. Do not modify `foundry.toml`, `src/IERC20.sol` or `src/MockERC20.sol`.
+
+  You may run the project's tests while you work. The deliverable is graded by tests you
+  cannot see, so follow the spec exactly. Treat this as production code.
+fixture: build-03-merkle-airdrop
+frozen:
+  - foundry.toml
+  - src/IERC20.sol
+  - src/MockERC20.sol
+deliverable: src/MerkleAirdrop.sol
+exec:
+  runner: forge
+  match: test/ceno/*
+  min_tests: 7
+  timeout: 900
+grading: exec
+source:
+  mistake: Packed leaf encoding that does not match the tree, unsorted pair hashing, missing double-claim guard, and paying the caller instead of the leaf's account.
+  seen_in: real agent output on merkle airdrop tasks
+  credit: cenobench

@@ -1,0 +1,45 @@
+id: secure-02-faucet-access-control
+benchmark: dapp-lifecycle
+track: secure
+title: Fix missing access control on a live faucet
+kind: exec
+summary: Two owner-only functions are open to anyone, giving two independent theft paths. Hidden exploit and behavior tests decide.
+prompt: |
+  `src/RewardFaucet.sol` is a live reward faucet that holds user funds and is funded in the
+  deployment below. An auditor found that `setMinter` and `sweep` have no access control:
+
+  - anyone can call `setMinter` and install themselves as the minter, then `mint` the faucet's
+    balance to themselves;
+  - anyone can call `sweep` and send the whole balance to any address.
+
+  Both functions are intended to be callable only by the owner. `mint` must keep its existing
+  rule that only the current `minter` can call it.
+
+  Fix the authorization. Deliver the fixed contract in `src/RewardFaucet.sol`.
+
+  Constraints:
+
+  - Keep the constructor and public interface unchanged: `token()`, `owner()`, `minter()`,
+    `setMinter(address)`, `mint(address,uint256)`, `sweep(address)`, and the events.
+  - Keep behavior unchanged for the owner and the minter.
+  - Do not modify `test/Faucet.t.sol`, `foundry.toml`, `src/IERC20.sol` or `src/MockERC20.sol`.
+
+  Your fix is checked by an exploit you cannot see and by behavior tests you cannot see.
+  Blocking one path but leaving the other open does not pass.
+fixture: secure-02-faucet-access
+frozen:
+  - foundry.toml
+  - src/IERC20.sol
+  - src/MockERC20.sol
+  - test/Faucet.t.sol
+deliverable: src/RewardFaucet.sol
+exec:
+  runner: forge
+  match: test/ceno/*
+  min_tests: 6
+  timeout: 600
+grading: exec
+source:
+  mistake: Adding a guard to one privileged function and missing the other, and substituting tx.origin checks for real authorization.
+  seen_in: real agent output on access-control fixes
+  credit: cenobench

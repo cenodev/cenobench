@@ -1,0 +1,29 @@
+[
+  {
+    "id": "F-1",
+    "title": "Anyone can set the protocol fee",
+    "severity": "high",
+    "location": "src/Marketplace.sol:setProtocolFeeBps()",
+    "root_cause": "setProtocolFeeBps has no access control; the admin-only intent is documented but not enforced.",
+    "impact": "An attacker can set the fee to 100% of every sale, capturing all seller proceeds on subsequent sales.",
+    "recommendation": "Store an admin address and require msg.sender == admin (or an owner role) in setProtocolFeeBps."
+  },
+  {
+    "id": "F-2",
+    "title": "Signed offers can be filled repeatedly",
+    "severity": "high",
+    "location": "src/Offers.sol:fillOffer()",
+    "root_cause": "The offer digest contains no nonce, and the filled mapping is never checked or written, so a valid signature authorizes unlimited fills.",
+    "impact": "A maker's signed offer can be replayed by repeatedly filling it, draining the maker's payment token balance.",
+    "recommendation": "Include a unique offer id/nonce and the contract address in the digest, mark the offer as filled before transfers, and reject already-filled offers."
+  },
+  {
+    "id": "F-3",
+    "title": "Buyer overpayments are stuck in the contract",
+    "severity": "medium",
+    "location": "src/BuyNow.sol:buy()",
+    "root_cause": "buy requires msg.value >= price but only forwards listing.price; the excess is neither refunded nor withdrawable.",
+    "impact": "Any buyer who overpays permanently loses the excess ETH to the contract.",
+    "recommendation": "Require msg.value == price, or refund msg.value - listing.price to the buyer in the same transaction."
+  }
+]

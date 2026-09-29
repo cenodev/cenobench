@@ -1,0 +1,58 @@
+id: build-04-vesting-wallet
+benchmark: dapp-lifecycle
+track: build
+title: Linear vesting wallet with cliff and revocation
+kind: exec
+summary: Implement a linear vesting schedule from spec. Hidden tests hit the cliff boundary, accrual cap, release accounting and revocation split.
+prompt: |
+  A token grant needs a linear vesting contract.
+
+  Write `src/LinearVesting.sol` containing a contract named `LinearVesting`.
+
+  Constructor:
+    constructor(address token_, address beneficiary_, uint256 start_, uint256 cliff_,
+                uint256 duration_, uint256 totalAmount_)
+
+  - Reverts if `token_` or `beneficiary_` is the zero address.
+  - Reverts if `duration_ == 0`, `totalAmount_ == 0`, or `cliff_ > duration_`.
+  - The deployer is the owner. Amounts are in the token's base units (see `src/IERC20.sol`,
+    `src/MockERC20.sol`).
+
+  Public interface:
+
+  - `token()`, `owner()`, `beneficiary()`, `start()`, `cliff()`, `duration()`,
+    `totalAmount()`, `released()`, `revokedAt()` — public state.
+  - `vestedAmount(uint256 timestamp) view returns (uint256)`:
+    - 0 while `timestamp < start + cliff`;
+    - `totalAmount * (timestamp - start) / duration` once the cliff has passed;
+    - capped at `totalAmount` from `start + duration` onward;
+    - after a revocation, any timestamp after `revokedAt` is treated as `revokedAt`.
+  - `releasable() view returns (uint256)` — `vestedAmount(block.timestamp) - released`.
+  - `release()` — sends `releasable()` to the beneficiary, adds it to `released`, and reverts
+    when there is nothing to release.
+  - `revoke()` — owner only, callable once. Records `revokedAt = block.timestamp` and sends
+    the still-unvested part (`totalAmount - vestedAmount(block.timestamp)`) to the owner.
+    The beneficiary keeps whatever was already vested and can still `release()` it.
+
+  Solidity 0.8.x, exact integer math, no fees. Put the implementation in
+  `src/LinearVesting.sol`; helper contracts may live in the same file. Do not modify
+  `foundry.toml`, `src/IERC20.sol` or `src/MockERC20.sol`.
+
+  You may run the project's tests while you work. The deliverable is graded by tests you
+  cannot see, so follow the spec exactly. Treat this as production code.
+fixture: build-04-vesting
+frozen:
+  - foundry.toml
+  - src/IERC20.sol
+  - src/MockERC20.sol
+deliverable: src/LinearVesting.sol
+exec:
+  runner: forge
+  match: test/ceno/*
+  min_tests: 8
+  timeout: 900
+grading: exec
+source:
+  mistake: Inclusive cliff comparisons, vesting that keeps accruing past the end, revocation that pays the owner vested funds, and release that does not track what was paid.
+  seen_in: real agent output on vesting and escrow tasks
+  credit: cenobench

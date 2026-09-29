@@ -37,11 +37,29 @@ touching cenobench's code.
 Requirements: Python 3.11+, [Foundry](https://getfoundry.sh) (`forge`) for executed evals,
 solc 0.8.28 cached (the harness runs offline once fixtures have compiled once).
 
+## cenobench is an index
+
+cenobench aggregates blockchain benchmarks. Each benchmark keeps its own repo and harness;
+cenobench ingests its result cards and publishes one point per configuration:
+
+- `sources/<id>.yaml` — where a benchmark's results live, its temp-dir prefix, how to run it.
+- `aggregate.py` — normalizes every source into `runs/<id>/<config>.json`, then writes
+  `index.json`: one row per config with **mark** (equal-weight mean of benchmark scores) and
+  **cost_usd** (executor-only, measured).
+- Cost is measured from opencode's SQLite DB, which records per-step `cost`/`tokens` against
+  the session's working directory (`/tmp/ethevals-*` vs the judge's `/tmp/ethevals-judge`).
+  Harnesses that do not report usage produce `cost_usd: null` and are plotted as cost-unknown,
+  never as zero.
+
+Currently indexed: our own `dapp-lifecycle` plus [ETHEVALS](https://ethevals.com).
+
 ## Status
 
-v0.1: benchmark `dapp-lifecycle` (build ×2, test ×1, secure ×1, audit ×1), the harness, the
-discrimination self-test and the result indexes. `python3 run.py --self-test` is green. The
-site and the result-submission flow are next.
+v0.2: own benchmark `dapp-lifecycle` (build ×4, test ×2, secure ×2, audit ×2) with weighted
+scores and partial-credit sub-scores, plus the cross-benchmark index (`sources/`,
+`aggregate.py`, `index.json`) starting with ETHEVALS. `python3 run.py --self-test` is green and
+`python3 aggregate.py` produces the combined marks. The site and the result-submission flow
+are next.
 
 ## Credits
 

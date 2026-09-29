@@ -1,6 +1,6 @@
 id: dapp-lifecycle
 name: Dapp Lifecycle
-version: 0.1.0
+version: 0.2.0
 desc: >
   Build, test, secure and audit onchain applications. Artifacts are executed, not read:
   hidden Foundry tests run against what the model leaves behind.

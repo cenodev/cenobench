@@ -1,0 +1,44 @@
+id: test-02-vesting-mutation
+benchmark: dapp-lifecycle
+track: test
+title: Kill seeded regressions in a vesting contract
+kind: exec
+summary: Pin the behavior of a linear vesting contract. The suite must be green as shipped and fail against five hidden single-behavior variants.
+prompt: |
+  `src/LinearVesting.sol` is a complete linear vesting contract. Its current behavior is the
+  specification.
+
+  Write a Foundry test suite for it under `test/`. Files must be named `*.t.sol`.
+
+  Your suite is graded by mutation testing:
+
+  - It runs against the code as shipped. Every test must pass.
+  - It runs again once per hidden variant, where a single behavior of `LinearVesting` has been
+    changed. Your suite passes only if at least one of your tests fails for every variant.
+
+  Pin the exact observable contract: constructor validation, the cliff boundary, linear accrual,
+  the cap at the end of the schedule, release accounting, and revocation including what the
+  owner and beneficiary each keep. Assert on observable state and return values, not on source
+  details — the suite is re-run against variants of the source.
+
+  Do not modify `src/LinearVesting.sol`, `src/IERC20.sol`, `src/MockERC20.sol` or
+  `foundry.toml`.
+
+  You may run the project's tests while you work. Treat this as a suite that has to catch real
+  regressions in production code.
+fixture: test-02-vesting
+frozen:
+  - foundry.toml
+  - src/IERC20.sol
+  - src/MockERC20.sol
+  - src/LinearVesting.sol
+deliverable: test/
+exec:
+  runner: forge
+  min_tests: 5
+  timeout: 900
+grading: mutation
+source:
+  mistake: Happy-path vesting tests that never touch the cliff second, the accrual cap, release accounting or revocation splits.
+  seen_in: real agent output on test-writing tasks
+  credit: cenobench

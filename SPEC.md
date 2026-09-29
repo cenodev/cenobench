@@ -1,6 +1,6 @@
 # CENOBENCH — Benchmark Specification
 
-Version 0.1 (draft) · Status: first task set (`dapp-lifecycle` v0.1.0)
+Version 0.1 (draft) · Status: benchmark `dapp-lifecycle` v0.2.0 (10 evals)
 
 ---
 
@@ -337,12 +337,21 @@ One file per run: `results/<slug>.json`.
 
 ## 9. Scoring
 
-- An eval scores `weight` when it passes, else 0. Default weight 1.
-- `track` score = passed weight / runnable weight, counting only graded rows.
-- Benchmark and total scores are the sum over tracks.
-- The site ranks cards by total. Model, harness and skill are all part of the card's identity:
-  one model can appear many times, and the deltas between cards are as interesting as the
-  totals.
+- Every eval carries a `weight` (default 1). An eval earns its weight when it passes, else 0.
+- Track score = `100 × Σ(passed weight) / Σ(suite weight)` for that track. Overall score is the
+  same fraction over the whole benchmark.
+- **Skipping cannot raise a score.** Dead, ungraded and failed evals all contribute 0 to the
+  numerator but stay in the denominator. A run that crashes on an eval scores lower than one
+  that fails it honestly, so the reported number is never inflated by an incomplete run.
+  `--resume` exists so crashes can be repaired, not ignored.
+- `pass/total` counts are recorded alongside `score` so a card can be read either way.
+- **Partial credit is secondary.** `subscore` records units inside one eval — hidden tests
+  passed, mutants killed, audit conditions met. It appears in per-eval drill-downs and is used
+  for tie-breaking insight, never for the headline score, so a model cannot farm easy
+  assertions inside one large eval.
+- The site ranks cards by overall score. Model, harness and skill are all part of the card's
+  identity: one model can appear many times, and the deltas between cards are as interesting as
+  the totals.
 
 ---
 

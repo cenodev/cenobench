@@ -1,0 +1,11 @@
+id: dapp-lifecycle
+name: Dapp Lifecycle
+desc: >
+  Build, test, secure and audit onchain applications. Artifacts are executed, not read:
+  hidden Foundry tests run against what the model leaves behind.
+repo: https://github.com/cenodev/cenobench
+dir: .
+results_glob: results/*.json
+temp_prefix: /tmp/cenobench-
+run_cmd: "python3 run.py --name <config> --executor opencode --model <model> --judge-cmd '<judge>'"
+tracks: [build, test, secure, audit]

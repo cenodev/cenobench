@@ -1,0 +1,57 @@
+id: audit-02-marketplace
+benchmark: dapp-lifecycle
+track: audit
+title: Findings report for a small marketplace
+kind: goal
+summary: Audit a fee config, signed offers and a fixed-price sale with three seeded issues. Report findings as JSON; false positives count against you.
+prompt: |
+  You are auditing a small marketplace in `src/`. Read `SYSTEM.md` for the intended behavior.
+
+  Produce `findings.json` in the workspace root: a JSON array of findings, each with:
+
+  - `id` — e.g. "F-1"
+  - `title` — short
+  - `severity` — one of "critical", "high", "medium", "low", "informational"
+  - `location` — file and function, e.g. "src/Foo.sol:bar()"
+  - `root_cause` — what the code does wrong
+  - `impact` — what an attacker or user can actually do because of it
+  - `recommendation` — the fix
+
+  This is a paid engagement: report only what you would stand behind. Findings that are not
+  real count against you, and severity needs a stated impact to back it up.
+fixture: audit-02-marketplace
+expect:
+  - 'findings.json exists, is valid JSON, and is an array in which every finding has non-empty
+    id, title, severity, location, root_cause, impact and recommendation fields.'
+  - 'One finding identifies that Marketplace.setProtocolFeeBps has no access control, so anyone
+    can raise the fee, and states an impact consistent with that (e.g. capturing seller
+    proceeds).'
+  - 'One finding identifies that Offers.fillOffer has no replay protection: the digest has no
+    nonce and the filled mapping is never checked or written, so the same signed offer can be
+    filled repeatedly, and states that impact.'
+  - 'One finding identifies that BuyNow.buy does not refund or escrow the excess when
+    msg.value > price, so buyer overpayments are stuck in the contract, and states that impact.'
+  - 'The report does not fabricate: every finding corresponds to behavior present in the provided
+    code. Additional legitimate observations are allowed, but claiming the code does something
+    it does not fails this condition, and no finding is rated high or critical without a concrete
+    impact statement.'
+answer_key:
+  - id: marketplace-fee-access
+    location: src/Marketplace.sol:setProtocolFeeBps()
+    class: missing access control
+    severity: high
+    note: Anyone can set the protocol fee, including to 100%.
+  - id: offer-replay
+    location: src/Offers.sol:fillOffer()
+    class: missing replay protection
+    severity: high
+    note: Digest has no nonce; filled mapping never checked or written.
+  - id: stuck-overpayment
+    location: src/BuyNow.sol:buy()
+    class: stuck funds / missing refund
+    severity: medium
+    note: msg.value above price is kept with no refund and no withdrawal.
+source:
+  mistake: Missing access control on config, replayable signatures, and value handling that leaves funds stuck.
+  seen_in: real agent audit output
+  credit: cenobench

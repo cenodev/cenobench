@@ -42,11 +42,15 @@ def main():
     for f in sorted(glob.glob(os.path.join(ROOT, "results", "*.json"))):
         if f.endswith("index.json"): continue
         d = json.load(open(f))
+        for t in (d.get("tracks") or {}).values():
+            t.setdefault("score", round(100 * t["pass"] / t["total"], 1) if t.get("total") else 0.0)
+        if d.get("total"):
+            d["total"].setdefault("score", round(100 * d["total"]["pass"] / d["total"]["total"], 1) if d["total"].get("total") else 0.0)
         rows = [r for r in d.get("rows", []) if not r.get("dead") and not r.get("ungraded")]
         runs.append({k: d.get(k) for k in ("name", "model", "harness", "skill", "started", "benchmarks", "tracks", "total")}
                     | {"label": label(d["name"]), "file": os.path.relpath(f, ROOT),
                        "evals_run": len(rows), "verdicts": {r["id"]: bool(r["pass"]) for r in rows}})
-    runs.sort(key=lambda r: -(r["total"]["pass"] if r.get("total") else 0))
+    runs.sort(key=lambda r: -(r["total"]["score"] if r.get("total") else 0))
     json.dump({"generated": generated, "benchmarks": {b["id"]: {"version": b.get("version"), "manifest": b["manifest"]}
                                                       for b in cat["benchmarks"]}, "runs": runs},
               open(os.path.join(ROOT, "results", "index.json"), "w"), indent=1)

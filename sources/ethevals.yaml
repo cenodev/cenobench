@@ -1,0 +1,11 @@
+id: ethevals
+name: ETHEVALS
+desc: >
+  How much does your AI actually know about Ethereum? 100 evals across concepts,
+  transactions, building and security, from BuidlGuidl.
+repo: https://github.com/austintgriffith/ethevals
+dir: ../ethevals
+results_glob: results/*.json
+temp_prefix: /tmp/ethevals-
+run_cmd: "python3 run.py --name <config> --executor opencode --model <model> --judge-cmd '<judge>'"
+tracks: [concepts, transactions, building, security]

@@ -1,0 +1,213 @@
+{
+ "generated": "2026-09-29T22:23:00+00:00",
+ "configs": [
+  {
+   "config": "fable-5.1+ethskills",
+   "model": "fable",
+   "harness": "claude code",
+   "skill": "https://ethskills.com/SKILL.md",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 93.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/fable-5.1+ethskills.json"
+    }
+   },
+   "mark": 93.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "gpt-6-astra",
+   "model": "gpt-6-astra",
+   "harness": "codex",
+   "skill": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 93.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/gpt-6-astra.json"
+    }
+   },
+   "mark": 93.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "opus-5",
+   "model": "opus",
+   "harness": "claude code",
+   "skill": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 89.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/opus-5.json"
+    }
+   },
+   "mark": 89.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "opus-5.5",
+   "model": "claude-opus-5-5",
+   "harness": "claude code",
+   "skill": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 89.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/opus-5.5.json"
+    }
+   },
+   "mark": 89.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "fable-5.1",
+   "model": "fable",
+   "harness": "claude code",
+   "skill": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 88.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/fable-5.1.json"
+    }
+   },
+   "mark": 88.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "sonnet-5",
+   "model": "sonnet",
+   "harness": "claude code",
+   "skill": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 85.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/sonnet-5.json"
+    }
+   },
+   "mark": 85.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "sonnet-5.5",
+   "model": "claude-sonnet-5-5",
+   "harness": "claude code",
+   "skill": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 85.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/sonnet-5.5.json"
+    }
+   },
+   "mark": 85.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "muse-spark-1.3-contributor",
+   "model": "opencode-go/muse-spark-1.3-contributor",
+   "harness": "opencode",
+   "skill": null,
+   "benchmarks": {
+    "dapp-lifecycle": {
+     "name": "Dapp Lifecycle",
+     "score": 80.0,
+     "cost_usd": 0.0276,
+     "cost_source": "measured:opencode-db",
+     "manifest": "459de77a9d35",
+     "file": "runs/dapp-lifecycle/muse-spark-1.3-contributor.json"
+    },
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 86.0,
+     "cost_usd": 0.2048,
+     "cost_source": "measured:opencode-db",
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/muse-spark-1.3-contributor.json"
+    }
+   },
+   "mark": 83.0,
+   "cost_usd": 0.2324,
+   "benchmarks_scored": 2,
+   "cost_complete": true
+  },
+  {
+   "config": "haiku-4.5+ethskills",
+   "model": "haiku",
+   "harness": "claude code",
+   "skill": "https://ethskills.com/SKILL.md",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 68.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/haiku-4.5+ethskills.json"
+    }
+   },
+   "mark": 68.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  },
+  {
+   "config": "haiku-4.5",
+   "model": "haiku",
+   "harness": "claude code",
+   "skill": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 62.0,
+     "cost_usd": null,
+     "cost_source": null,
+     "manifest": "4aa67fc4f695",
+     "file": "runs/ethevals/haiku-4.5.json"
+    }
+   },
+   "mark": 62.0,
+   "cost_usd": null,
+   "benchmarks_scored": 1,
+   "cost_complete": false
+  }
+ ]
+}

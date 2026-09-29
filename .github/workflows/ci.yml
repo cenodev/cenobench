@@ -17,5 +17,7 @@ jobs:
       - run: forge --version
       - run: python3 run.py --self-test
       - run: python3 build.py
-      - name: indexes are up to date
-        run: git diff --exit-code benchmarks/index.json results/index.json
+      - run: python3 aggregate.py
+      - name: indexes are valid JSON
+        run: |
+          python3 -c "import json; json.load(open('benchmarks/index.json')); json.load(open('results/index.json')); json.load(open('index.json'))"

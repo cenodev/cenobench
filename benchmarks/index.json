@@ -1,36 +1,36 @@
 {
- "generated": "2026-09-29T20:48:53+00:00",
+ "generated": "2026-09-29T22:22:59+00:00",
  "benchmarks": [
   {
    "id": "dapp-lifecycle",
    "name": "Dapp Lifecycle",
-   "version": "0.1.0",
+   "version": "0.2.0",
    "desc": "Build, test, secure and audit onchain applications. Artifacts are executed, not read: hidden Foundry tests run against what the model leaves behind.\n",
-   "manifest": "459de77a9d35",
+   "manifest": "9f7162454ee2",
    "tracks": [
     {
      "id": "build",
      "name": "Build",
      "desc": "Implement a dapp or protocol from a written spec. Hidden Foundry tests decide.",
-     "count": 2
+     "count": 4
     },
     {
      "id": "test",
      "name": "Test",
      "desc": "Write a suite that catches real regressions. Seeded variants must die.",
-     "count": 1
+     "count": 2
     },
     {
      "id": "secure",
      "name": "Secure",
      "desc": "Fix a live vulnerability without breaking behavior. A hidden exploit decides.",
-     "count": 1
+     "count": 2
     },
     {
      "id": "audit",
      "name": "Audit",
      "desc": "Find what is actually wrong. False positives count against you.",
-     "count": 1
+     "count": 2
     }
    ],
    "evals": [
@@ -47,6 +47,20 @@
       "credit": "cenobench"
      },
      "fixture": "audit-01-seeded-defi"
+    },
+    {
+     "id": "audit-02-marketplace",
+     "track": "audit",
+     "title": "Findings report for a small marketplace",
+     "kind": "goal",
+     "graded": "judge",
+     "summary": "Audit a fee config, signed offers and a fixed-price sale with three seeded issues. Report findings as JSON; false positives count against you.",
+     "source": {
+      "mistake": "Missing access control on config, replayable signatures, and value handling that leaves funds stuck.",
+      "seen_in": "real agent audit output",
+      "credit": "cenobench"
+     },
+     "fixture": "audit-02-marketplace"
     },
     {
      "id": "build-01-erc4626-vault",
@@ -77,6 +91,34 @@
      "fixture": "build-02-crowdfund"
     },
     {
+     "id": "build-03-merkle-airdrop",
+     "track": "build",
+     "title": "Merkle airdrop with sorted-pair proofs",
+     "kind": "exec",
+     "graded": "exec",
+     "summary": "Implement a Merkle airdrop from spec. Hidden tests build a three-leaf tree and check proofs, double claims and transfer targets.",
+     "source": {
+      "mistake": "Packed leaf encoding that does not match the tree, unsorted pair hashing, missing double-claim guard, and paying the caller instead of the leaf's account.",
+      "seen_in": "real agent output on merkle airdrop tasks",
+      "credit": "cenobench"
+     },
+     "fixture": "build-03-merkle-airdrop"
+    },
+    {
+     "id": "build-04-vesting-wallet",
+     "track": "build",
+     "title": "Linear vesting wallet with cliff and revocation",
+     "kind": "exec",
+     "graded": "exec",
+     "summary": "Implement a linear vesting schedule from spec. Hidden tests hit the cliff boundary, accrual cap, release accounting and revocation split.",
+     "source": {
+      "mistake": "Inclusive cliff comparisons, vesting that keeps accruing past the end, revocation that pays the owner vested funds, and release that does not track what was paid.",
+      "seen_in": "real agent output on vesting and escrow tasks",
+      "credit": "cenobench"
+     },
+     "fixture": "build-04-vesting"
+    },
+    {
      "id": "secure-01-reentrancy-fix",
      "track": "secure",
      "title": "Fix a reentrant withdrawal in a live pool",
@@ -91,6 +133,20 @@
      "fixture": "secure-01-reentrancy"
     },
     {
+     "id": "secure-02-faucet-access-control",
+     "track": "secure",
+     "title": "Fix missing access control on a live faucet",
+     "kind": "exec",
+     "graded": "exec",
+     "summary": "Two owner-only functions are open to anyone, giving two independent theft paths. Hidden exploit and behavior tests decide.",
+     "source": {
+      "mistake": "Adding a guard to one privileged function and missing the other, and substituting tx.origin checks for real authorization.",
+      "seen_in": "real agent output on access-control fixes",
+      "credit": "cenobench"
+     },
+     "fixture": "secure-02-faucet-access"
+    },
+    {
      "id": "test-01-ledger-mutation",
      "track": "test",
      "title": "Write tests that kill every seeded regression",
@@ -103,6 +159,20 @@
       "credit": "cenobench"
      },
      "fixture": "test-01-ledger"
+    },
+    {
+     "id": "test-02-vesting-mutation",
+     "track": "test",
+     "title": "Kill seeded regressions in a vesting contract",
+     "kind": "exec",
+     "graded": "mutation",
+     "summary": "Pin the behavior of a linear vesting contract. The suite must be green as shipped and fail against five hidden single-behavior variants.",
+     "source": {
+      "mistake": "Happy-path vesting tests that never touch the cliff second, the accrual cap, release accounting or revocation splits.",
+      "seen_in": "real agent output on test-writing tasks",
+      "credit": "cenobench"
+     },
+     "fixture": "test-02-vesting"
     }
    ]
   }
