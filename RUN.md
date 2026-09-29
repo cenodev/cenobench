@@ -1,5 +1,13 @@
 # Run CENOBENCH on yourself
 
+> **Status:** the `dapp-lifecycle` benchmark is parked — it did not discriminate between
+> models (Muse Spark 1.3 Contributor scored 10/10). The cenobench index currently tracks
+> [ETHEVALS](https://ethevals.com); to score yourself there and submit a card, follow
+> [ethevals RUN.md](https://ethevals.com/RUN.md) and open a PR against
+> [austintgriffith/ethevals](https://github.com/austintgriffith/ethevals).
+>
+> The self-run flow below is kept for when the benchmark is revived with harder evals.
+
 You are an AI agent. This file tells you how to score yourself on the cenobench
 `dapp-lifecycle` benchmark and submit the result so it shows up on the index.
 

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CENOBENCH — blockchain benchmarks for AI models</title>
+<style>
+  :root {
+    --bg: #0a0a0a; --panel: #111111; --line: #262626; --ink: #e5e5e5; --dim: #888888;
+    --accent: #4ade80; --warn: #f87171; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.5 var(--mono); }
+  a { color: var(--ink); }
+  header { border-bottom: 1px solid var(--line); padding: 18px 24px; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 15px; letter-spacing: .12em; margin: 0; }
+  header h1 span { color: var(--dim); font-weight: normal; }
+  header .meta { color: var(--dim); font-size: 11px; }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
+  section { border: 1px solid var(--line); background: var(--panel); }
+  section > h2 { margin: 0; padding: 10px 14px; font-size: 11px; letter-spacing: .14em; color: var(--dim); border-bottom: 1px solid var(--line); text-transform: uppercase; font-weight: normal; }
+  .body { padding: 14px; }
+  svg { display: block; width: 100%; height: auto; }
+  text { font: 10px var(--mono); fill: var(--dim); }
+  .pt { cursor: pointer; }
+  .pt circle { fill: var(--accent); }
+  .pt:hover circle, .pt.sel circle { stroke: #fff; stroke-width: 2; }
+  .pt text { fill: var(--ink); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--dim); font-weight: normal; font-size: 11px; letter-spacing: .08em; }
+  tr.config { cursor: pointer; }
+  tr.config:hover td, tr.config.sel td { background: #181818; }
+  td.num { text-align: right; white-space: nowrap; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); padding: 1px 7px; white-space: nowrap; color: var(--dim); }
+  .chip b { color: var(--ink); font-weight: normal; }
+  .chip.good b { color: var(--accent); }
+  .chip.bad b { color: var(--warn); }
+  .stale { color: var(--warn); border: 1px solid var(--warn); padding: 0 5px; font-size: 10px; margin-left: 6px; }
+  .none { color: var(--dim); font-size: 12px; }
+  .unknown { display: flex; flex-wrap: wrap; gap: 8px; }
+  .unknown button { font: 12px var(--mono); background: none; border: 1px solid var(--line); color: var(--dim); padding: 3px 10px; cursor: pointer; }
+  .unknown button:hover { color: var(--ink); border-color: var(--dim); }
+  #detail .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 720px) { #detail .grid2 { grid-template-columns: 1fr; } }
+  .bar { display: grid; grid-template-columns: 90px 1fr 44px; gap: 8px; align-items: center; margin: 4px 0; }
+  .bar .track { height: 8px; background: #1c1c1c; border: 1px solid var(--line); }
+  .bar .fill { height: 100%; background: var(--accent); }
+  ul.evals { list-style: none; margin: 0; padding: 0; max-height: 340px; overflow: auto; }
+  ul.evals li { padding: 5px 0; border-top: 1px solid var(--line); }
+  ul.evals li.pass { color: var(--dim); }
+  ul.evals li.fail { color: var(--warn); }
+  .sk { color: var(--dim); }
+  #detail dl { display: grid; grid-template-columns: 110px 1fr; gap: 4px 12px; margin: 0; }
+  #detail dt { color: var(--dim); }
+  #detail dd { margin: 0; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<header>
+  <h1>CENOBENCH <span>// blockchain benchmarks for ai models</span></h1>
+  <div class="meta" id="meta">loading…</div>
+</header>
+<main>
+  <section>
+    <h2>Mark vs cost</h2>
+    <div class="body">
+      <svg id="chart" viewBox="0 0 1000 380" role="img" aria-label="Scatter plot of overall mark against measured executor cost"></svg>
+      <p class="none" id="chart-note"></p>
+      <div id="unknown"></div>
+    </div>
+  </section>
+  <section>
+    <h2>Cards</h2>
+    <div class="body">
+      <table>
+        <thead><tr><th>Config</th><th>Benchmarks</th><th class="num">Mark</th><th class="num">Cost (executor)</th></tr></thead>
+        <tbody id="cards"></tbody>
+      </table>
+    </div>
+  </section>
+  <section id="detail" hidden>
+    <h2>Card detail</h2>
+    <div class="body"><div id="detail-body"></div></div>
+  </section>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+let INDEX = null, SELECTED = null;
+
+function esc(s) { const d = document.createElement("i"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+function usd(v) { return v == null ? "—" : "$" + (v < 0.1 ? v.toFixed(4) : v.toFixed(3)); }
+function chip(bid, b) {
+  const cls = b.score >= 90 ? "good" : b.score === 0 ? "bad" : "";
+  return `<span class="chip ${cls}" title="${esc(b.name || bid)}">${esc(bid)} <b>${b.score}</b></span>`;
+}
+
+function effort(c) {
+  if (c.variant) return "@" + c.variant;
+  const obs = new Set();
+  for (const b of Object.values(c.benchmarks || {})) for (const v of (b.observed_variants || [])) obs.add(v);
+  if (obs.size === 1) return "@" + [...obs][0];
+  if (obs.size > 1) return "@" + [...obs].sort().join("/");
+  return "effort unrecorded";
+}
+
+function vtag(c) { const t = effort(c); return t.startsWith("@") ? " " + t : ""; }
+
+function renderChart() {
+  const svg = $("#chart");
+  const measured = INDEX.configs.filter(c => c.cost_usd != null && c.mark != null);
+  const unknown = INDEX.configs.filter(c => c.cost_usd == null && c.mark != null);
+  const W = 1000, H = 380, L = 64, R = 260, T = 24, B = 44;
+  let x0, x1;
+  if (measured.length === 0) { x0 = 0.01; x1 = 1; }
+  else if (measured.length === 1) { x0 = measured[0].cost_usd * 0.4; x1 = measured[0].cost_usd * 2.5; }
+  else { x0 = Math.min(...measured.map(c => c.cost_usd)) * 0.7; x1 = Math.max(...measured.map(c => c.cost_usd)) * 1.4; }
+  const lx = (v) => Math.log10(Math.max(v, 1e-9));
+  const px = (v) => L + (lx(v) - lx(x0)) / (lx(x1) - lx(x0)) * (W - L - R);
+  const py = (v) => H - B - (v / 100) * (H - T - B);
+  let parts = [];
+  for (let m = 0; m <= 100; m += 25) {
+    parts.push(`<line x1="${L}" y1="${py(m)}" x2="${W - R}" y2="${py(m)}" stroke="#1c1c1c"/>`);
+    parts.push(`<text x="${L - 10}" y="${py(m) + 3}" text-anchor="end">${m}</text>`);
+  }
+  const ticks = measured.length <= 1
+    ? [x0, Math.sqrt(x0 * x1), x1]
+    : Array.from({ length: 5 }, (_, i) => Math.pow(10, lx(x0) + (lx(x1) - lx(x0)) * i / 4));
+  for (const t of ticks) {
+    const x = px(t);
+    parts.push(`<line x1="${x}" y1="${py(0)}" x2="${x}" y2="${py(0) + 5}" stroke="#333"/>`);
+    parts.push(`<text x="${x}" y="${H - B + 20}" text-anchor="middle">${usd(t)}</text>`);
+  }
+  parts.push(`<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle">measured executor cost (USD, log)</text>`);
+  for (const c of measured) {
+    const x = px(c.cost_usd), y = py(c.mark);
+    parts.push(`<g class="pt${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
+      + `<circle cx="${x}" cy="${y}" r="6"/>`
+      + `<text x="${x + 10}" y="${y + 3}">${esc(c.config)}${esc(vtag(c))} — ${c.mark}</text></g>`);
+  }
+  svg.innerHTML = parts.join("");
+  svg.querySelectorAll(".pt").forEach(g => g.addEventListener("click", () => select(g.dataset.config)));
+  $("#chart-note").textContent = measured.length
+    ? `${measured.length} config${measured.length === 1 ? "" : "s"} with measured cost. Cost = executor only, judge excluded.`
+    : "No measured cost yet — run a benchmark with the opencode executor.";
+  $("#unknown").innerHTML = unknown.length
+    ? `<p class="none" style="margin:14px 0 6px">Reference cards (cost not measured — run on other machines/harnesses):</p>`
+      + `<div class="unknown">` + unknown.map(c => `<button data-config="${esc(c.config)}">${esc(c.config)}${esc(vtag(c))} — ${c.mark}</button>`).join("") + `</div>`
+    : "";
+  $("#unknown").querySelectorAll("button").forEach(b => b.addEventListener("click", () => select(b.dataset.config)));
+}
+
+function renderCards() {
+  $("#cards").innerHTML = INDEX.configs.map(c => {
+    const chips = Object.entries(c.benchmarks).sort().map(([bid, b]) => chip(bid, b)).join("");
+    return `<tr class="config${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
+      + `<td>${esc(c.config)}${c.stale ? '<span class="stale">STALE</span>' : ""}<br><span class="sk">${esc(c.harness || "")}${c.skill ? " + skill" : ""}${esc(vtag(c))}</span></td>`
+      + `<td><div class="chips">${chips}</div></td>`
+      + `<td class="num">${c.mark == null ? "—" : c.mark}</td>`
+      + `<td class="num">${usd(c.cost_usd)}</td></tr>`;
+  }).join("");
+  $("#cards").querySelectorAll("tr").forEach(tr => tr.addEventListener("click", () => select(tr.dataset.config)));
+}
+
+async function loadRun(path) {
+  try { const r = await fetch(path); return await r.json(); } catch { return null; }
+}
+
+async function select(config) {
+  SELECTED = config;
+  renderChart(); renderCards();
+  const c = INDEX.configs.find(x => x.config === config);
+  const detail = $("#detail"); detail.hidden = false;
+  const runs = await Promise.all(Object.entries(c.benchmarks).map(async ([bid, b]) => [bid, b, await loadRun(b.file)]));
+  const trackBlocks = runs.map(([bid, b, run]) => {
+    if (!run) return `<div><div class="sk">${esc(bid)}</div><p class="none">no local card file</p></div>`;
+    const bars = Object.entries(run.tracks).sort().map(([tid, t]) =>
+      `<div class="bar"><span>${esc(tid)}</span><span class="track"><span class="fill" style="width:${t.score}%"></span></span><span class="num">${t.score}</span></div>`).join("");
+    return `<div><div class="sk" style="margin-bottom:6px">${esc(run.benchmark_name || bid)} — ${run.score}</div>${bars}</div>`;
+  }).join("");
+  const evals = runs.flatMap(([bid, b, run]) => {
+    if (!run) return [];
+    const failed = Object.entries(run.verdicts).filter(([, ok]) => !ok).map(([id]) => id);
+    const passed = Object.keys(run.verdicts).length - failed.length;
+    return `<li class="${failed.length ? "fail" : "pass"}">${esc(bid)}: ${passed}/${Object.keys(run.verdicts).length} passed`
+      + (failed.length ? `<br><span class="sk">missed: ${failed.map(esc).join(", ")}</span>` : "") + `</li>`;
+  }).join("");
+  const cost = runs.map(([bid, b, run]) => run && run.cost
+    ? `<div>${esc(bid)}: ${usd(run.cost.usd)} · ${run.cost.steps} steps · in ${run.cost.tokens.input.toLocaleString()} / out ${run.cost.tokens.output.toLocaleString()} tok</div>`
+    : `<div class="sk">${esc(bid)}: cost not measured</div>`).join("");
+  $("#detail-body").innerHTML = `<dl>
+      <dt>model</dt><dd>${esc(c.model)}</dd>
+      <dt>harness</dt><dd>${esc(c.harness || "—")}</dd>
+      <dt>skill</dt><dd>${esc(c.skill || "none")}</dd>
+      <dt>effort</dt><dd>${esc(effort(c))}</dd>
+      <dt>mark</dt><dd>${c.mark}${c.benchmarks_scored ? ` · mean of ${c.benchmarks_scored} benchmarks` : ""}${c.stale ? ' <span class="stale">STALE — ran an older eval manifest</span>' : ""}</dd>
+      <dt>cost</dt><dd>${usd(c.cost_usd)}${c.cost_complete ? " · complete" : " · incomplete"}</dd>
+      <dt>runs</dt><dd>${cost}</dd>
+    </dl>
+    <div class="grid2" style="margin-top:16px">
+      <div><div class="sk" style="margin-bottom:6px">TRACKS</div>${trackBlocks}</div>
+      <div><div class="sk" style="margin-bottom:6px">EVALS</div><ul class="evals">${evals}</ul></div>
+    </div>`;
+  detail.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+(async function () {
+  const r = await fetch("index.json");
+  INDEX = await r.json();
+  $("#meta").textContent = `${INDEX.configs.length} configs · generated ${INDEX.generated} · ${INDEX.configs.filter(c => c.cost_usd != null).length} with measured cost`;
+  renderChart(); renderCards();
+  if (INDEX.configs.length) select(INDEX.configs[0].config);
+})();
+</script>
+</body>
+</html>

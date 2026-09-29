@@ -47,12 +47,34 @@ def overall(doc):
         score = round(100 * t["pass"] / t["total"], 1) if t.get("total") else 0.0
     return round(float(score), 1)
 
-def measure_cost(prefix, model, t1=None):
+def parse_iso(s):
+    try:
+        return datetime.fromisoformat(s).timestamp()
+    except Exception:
+        return None
+
+def current_manifest(source):
+    spec = source.get("current_manifest")
+    if not spec:
+        return None
+    path, _, key = spec.partition("#")
+    try:
+        d = json.load(open(os.path.normpath(os.path.join(ROOT, path))))
+    except Exception:
+        return None
+    if key and isinstance(d.get("benchmarks"), list):
+        for b in d["benchmarks"]:
+            if b.get("id") == key:
+                return b.get("manifest")
+    return d.get("manifest")
+
+def measure_cost(prefix, model, t0=None, t1=None):
     """Executor-only cost/tokens from opencode's DB: sessions under `prefix` for `model`,
     excluding judge sessions, created no later than t1."""
     if not os.path.exists(OPENCODE_DB):
         return None
-    provider, model_id = (model.split("/", 1) + [""])[:2] if "/" in (model or "") else (None, model)
+    model = (model or "").split("@")[0]
+    provider, model_id = (model.split("/", 1) + [""])[:2] if "/" in model else (None, model)
     try:
         con = sqlite3.connect(f"file:{OPENCODE_DB}?mode=ro", uri=True)
         rows = con.execute(
@@ -63,6 +85,7 @@ def measure_cost(prefix, model, t1=None):
     except sqlite3.Error:
         return None
     usd, hits = 0.0, 0
+    variants = set()
     tokens = {"input": 0, "output": 0, "reasoning": 0, "cache_read": 0, "cache_write": 0}
     for pdata, mdata in rows:
         try:
@@ -81,8 +104,12 @@ def measure_cost(prefix, model, t1=None):
         if t is None:
             continue
         t = t / 1000.0
+        if t0 and t < t0 - 5:
+            continue
         if t1 and t > t1 + 60:
             continue
+        if m.get("variant"):
+            variants.add(m["variant"])
         usd += float(p.get("cost") or 0)
         tk = p.get("tokens") or {}
         tokens["input"] += tk.get("input", 0)
@@ -95,7 +122,7 @@ def measure_cost(prefix, model, t1=None):
     if not hits:
         return None
     return {"usd": round(usd, 4), "scope": "executor", "source": "measured:opencode-db",
-            "tokens": tokens, "steps": hits}
+            "tokens": tokens, "steps": hits, "variants": sorted(variants)}
 
 def normalize(doc, source, path):
     tracks = track_scores(doc)
@@ -107,6 +134,7 @@ def normalize(doc, source, path):
         "config": name,
         "model": doc.get("model") or name,
         "harness": doc.get("harness"),
+        "variant": doc.get("variant"),
         "skill": doc.get("skill"),
         "started": doc.get("started"),
         "manifest": doc.get("manifest") or ((doc.get("benchmarks") or {}).get(source["id"]) or {}).get("manifest"),
@@ -119,11 +147,15 @@ def normalize(doc, source, path):
     }
     prefix = source.get("temp_prefix")
     if prefix:
+        t0 = parse_iso(doc.get("started"))
         try:
             t1 = os.path.getmtime(path)
         except OSError:
             t1 = None
-        rec["cost"] = measure_cost(prefix, rec["model"], t1)
+        rec["cost"] = measure_cost(prefix, rec["model"], t0, t1)
+    cur = source.get("_current_manifest")
+    rec["stale"] = bool(cur and rec["manifest"] and rec["manifest"] != cur)
+    rec["observed_variants"] = (rec["cost"] or {}).get("variants", [])
     return rec
 
 def slug(name):
@@ -131,6 +163,8 @@ def slug(name):
 
 def main():
     sources = load_sources()
+    for s in sources:
+        s["_current_manifest"] = current_manifest(s)
     os.makedirs(RUNS_DIR, exist_ok=True)
     configs = {}
     for s in sources:
@@ -155,13 +189,17 @@ def main():
             rec = normalize(doc, s, f)
             json.dump(rec, open(os.path.join(out_dir, slug(name) + ".json"), "w"), indent=1)
             c = configs.setdefault(name, {"config": name, "model": rec["model"], "harness": rec["harness"],
-                                          "skill": rec["skill"], "benchmarks": {}})
+                                          "skill": rec["skill"], "variant": rec["variant"], "benchmarks": {}})
+            if not c.get("variant"):
+                c["variant"] = rec["variant"] or (rec["observed_variants"][0] if len(rec["observed_variants"]) == 1 else None)
             c["benchmarks"][s["id"]] = {
                 "name": rec["benchmark_name"],
                 "score": rec["score"],
                 "cost_usd": (rec["cost"] or {}).get("usd"),
                 "cost_source": (rec["cost"] or {}).get("source"),
                 "manifest": rec["manifest"],
+                "stale": rec["stale"],
+                "observed_variants": rec["observed_variants"],
                 "file": os.path.relpath(os.path.join(out_dir, slug(name) + ".json"), ROOT),
             }
     out = []
@@ -172,6 +210,7 @@ def main():
         c["cost_usd"] = round(sum(costs), 4) if costs else None
         c["benchmarks_scored"] = len(scores)
         c["cost_complete"] = bool(c["benchmarks"]) and len(costs) == len(c["benchmarks"])
+        c["stale"] = any(b.get("stale") for b in c["benchmarks"].values())
         out.append(c)
     out.sort(key=lambda c: (-(c["mark"] or 0), c["cost_usd"] if c["cost_usd"] is not None else 1e18))
     index = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "configs": out}

@@ -26,6 +26,7 @@ python3 run.py --self-test          # fixtures must be green before anything run
 python3 run.py --list
 python3 run.py --name sonnet-5 --executor claude --model sonnet
 python3 run.py --name kimi-k2 --executor opencode --model openrouter/moonshotai/kimi-k2
+python3 run.py --name model@xhigh --executor opencode --model provider/model --variant xhigh
 python3 run.py --name model+audit-skill --executor claude --model m --skill ./skills/audit/SKILL.md
 python3 build.py
 ```
@@ -51,15 +52,22 @@ cenobench ingests its result cards and publishes one point per configuration:
   Harnesses that do not report usage produce `cost_usd: null` and are plotted as cost-unknown,
   never as zero.
 
-Currently indexed: our own `dapp-lifecycle` plus [ETHEVALS](https://ethevals.com).
+- Reasoning effort is part of a card's identity. Pass `--variant minimal|low|medium|high|xhigh`
+  (opencode) or `-c model_reasoning_effort=…` (codex) and name the card accordingly, e.g.
+  `--name muse-spark-1.3-contributor@xhigh`. Runs with no explicit variant are marked
+  **effort unrecorded**; when the harness does not record one, `aggregate.py` recovers the
+  observed variant from opencode's session DB for any card it can match.
+
+Currently indexed: [ETHEVALS](https://ethevals.com). Our own `dapp-lifecycle` benchmark is
+parked — it did not discriminate (Muse Spark 1.3 Contributor scored 10/10), so it is out of
+the index. Its harness and evals stay in the repo for when harder evals are authored.
 
 ## Status
 
-v0.2: own benchmark `dapp-lifecycle` (build ×4, test ×2, secure ×2, audit ×2) with weighted
-scores and partial-credit sub-scores, plus the cross-benchmark index (`sources/`,
-`aggregate.py`, `index.json`) starting with ETHEVALS. `python3 run.py --self-test` is green and
-`python3 aggregate.py` produces the combined marks. The site and the result-submission flow
-are next.
+v0.2: cross-benchmark index (`sources/`, `aggregate.py`, `index.json`) with ETHEVALS as the
+first source. The `dapp-lifecycle` benchmark is parked (see above); its harness, evals and
+self-test remain in the repo. `python3 aggregate.py` produces the marks; the site and the
+result-submission flow are next.
 
 ## Credits
 

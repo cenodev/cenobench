@@ -7,5 +7,6 @@ repo: https://github.com/austintgriffith/ethevals
 dir: ../ethevals
 results_glob: results/*.json
 temp_prefix: /tmp/ethevals-
+current_manifest: ../ethevals/evals/index.json
 run_cmd: "python3 run.py --name <config> --executor opencode --model <model> --judge-cmd '<judge>'"
 tracks: [concepts, transactions, building, security]

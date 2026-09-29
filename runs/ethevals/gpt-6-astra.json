@@ -4,6 +4,7 @@
  "config": "gpt-6-astra",
  "model": "gpt-6-astra",
  "harness": "codex",
+ "variant": null,
  "skill": null,
  "started": "2026-09-21T17:02:07+00:00",
  "manifest": "4aa67fc4f695",
@@ -134,5 +135,7 @@
   "transactions-25-safe-tx-hash": true
  },
  "cost": null,
- "source_file": "/home/ste/Documents/ceno/ethevals/results/gpt-6-astra.json"
+ "source_file": "/home/ste/Documents/ceno/ethevals/results/gpt-6-astra.json",
+ "stale": false,
+ "observed_variants": []
 }

@@ -4,6 +4,7 @@
  "config": "haiku-4.5",
  "model": "haiku",
  "harness": "claude code",
+ "variant": null,
  "skill": null,
  "started": "2026-09-21T17:08:25+00:00",
  "manifest": "4aa67fc4f695",
@@ -134,5 +135,7 @@
   "transactions-25-safe-tx-hash": true
  },
  "cost": null,
- "source_file": "/home/ste/Documents/ceno/ethevals/results/haiku-4.5.json"
+ "source_file": "/home/ste/Documents/ceno/ethevals/results/haiku-4.5.json",
+ "stale": false,
+ "observed_variants": []
 }

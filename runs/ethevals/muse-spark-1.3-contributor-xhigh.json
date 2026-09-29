@@ -1,14 +1,14 @@
 {
  "benchmark": "ethevals",
  "benchmark_name": "ETHEVALS",
- "config": "fable-5.1+ethskills",
- "model": "fable",
- "harness": "claude code",
+ "config": "muse-spark-1.3-contributor@xhigh",
+ "model": "muse-spark-1.3-contributor",
+ "harness": "opencode",
  "variant": null,
- "skill": "https://ethskills.com/SKILL.md",
- "started": "2026-09-21T17:03:50+00:00",
+ "skill": null,
+ "started": "2026-09-29T23:14:31+00:00",
  "manifest": "4aa67fc4f695",
- "score": 93.0,
+ "score": 83.0,
  "tracks": {
   "concepts": {
    "pass": 25,
@@ -16,19 +16,19 @@
    "score": 100.0
   },
   "transactions": {
-   "pass": 23,
-   "total": 25,
-   "score": 92.0
-  },
-  "building": {
-   "pass": 21,
-   "total": 25,
-   "score": 84.0
-  },
-  "security": {
    "pass": 24,
    "total": 25,
    "score": 96.0
+  },
+  "building": {
+   "pass": 14,
+   "total": 25,
+   "score": 56.0
+  },
+  "security": {
+   "pass": 20,
+   "total": 25,
+   "score": 80.0
   }
  },
  "evals_run": 100,
@@ -37,17 +37,17 @@
   "building-02-approve-flow-states": true,
   "building-03-usdc-decimals": true,
   "building-04-se2-staking-dapp": false,
-  "building-05-button-lifecycle": true,
-  "building-06-ens-input": true,
+  "building-05-button-lifecycle": false,
+  "building-06-ens-input": false,
   "building-07-double-fire": true,
   "building-08-rpc-config": false,
-  "building-09-mobile-chain-switch": true,
+  "building-09-mobile-chain-switch": false,
   "building-10-index-events": true,
   "building-11-forty-balances": true,
   "building-12-pick-a-chain": false,
-  "building-13-l2-real-cost": true,
-  "building-14-deployer-key-hygiene": true,
-  "building-15-agent-custody": true,
+  "building-13-l2-real-cost": false,
+  "building-14-deployer-key-hygiene": false,
+  "building-15-agent-custody": false,
   "building-16-one-click-from-eoa": true,
   "building-17-x402-paid-api": true,
   "building-18-create2-address-myth": true,
@@ -57,7 +57,7 @@
   "building-22-sign-transaction": true,
   "building-23-compact-signature": true,
   "building-24-4337-2d-nonce": true,
-  "building-25-hash-message-string": true,
+  "building-25-hash-message-string": false,
   "concepts-01-nothing-is-automatic": true,
   "concepts-02-walkaway-test": true,
   "concepts-03-keeper-bounty-math": true,
@@ -97,22 +97,22 @@
   "security-12-storage-layout": true,
   "security-13-authorize-upgrade": true,
   "security-14-sandwich-slippage": true,
-  "security-15-lending-postmortem-1": true,
-  "security-16-lending-postmortem-2": true,
+  "security-15-lending-postmortem-1": false,
+  "security-16-lending-postmortem-2": false,
   "security-17-lending-postmortem-3": true,
   "security-18-decimal-scale-mismatch": true,
-  "security-19-permissionless-listing": true,
+  "security-19-permissionless-listing": false,
   "security-20-borrowing-market": false,
-  "security-21-malicious-permit": true,
+  "security-21-malicious-permit": false,
   "security-22-permit2-batch": true,
   "security-23-decimal-verifying-contract": true,
   "security-24-siwe-domain": true,
   "security-25-safe-delegatecall": true,
   "transactions-01-selector-string": true,
   "transactions-02-abi-encode-static": true,
-  "transactions-03-decode-calldata": false,
+  "transactions-03-decode-calldata": true,
   "transactions-04-dynamic-types": true,
-  "transactions-05-struct-argument": true,
+  "transactions-05-struct-argument": false,
   "transactions-06-token-decimals": true,
   "transactions-07-bounded-approve": true,
   "transactions-08-permit-2612": true,
@@ -126,7 +126,7 @@
   "transactions-16-create2-truncation": true,
   "transactions-17-eip55-checksum": true,
   "transactions-18-storage-packing": true,
-  "transactions-19-nested-calldata": false,
+  "transactions-19-nested-calldata": true,
   "transactions-20-decode-a-revert": true,
   "transactions-21-decode-raw-tx": true,
   "transactions-22-legacy-v-chainid": true,
@@ -134,8 +134,25 @@
   "transactions-24-7702-self-nonce": true,
   "transactions-25-safe-tx-hash": true
  },
- "cost": null,
- "source_file": "/home/ste/Documents/ceno/ethevals/results/fable-5.1+ethskills.json",
+ "cost": {
+  "usd": 0.2442,
+  "scope": "executor",
+  "source": "measured:opencode-db",
+  "tokens": {
+   "input": 1467231,
+   "output": 161390,
+   "reasoning": 196640,
+   "cache_read": 12934472,
+   "cache_write": 0
+  },
+  "steps": 465,
+  "variants": [
+   "xhigh"
+  ]
+ },
+ "source_file": "/home/ste/Documents/ceno/ethevals/results/muse-spark-1.3-contributor-xhigh.json",
  "stale": false,
- "observed_variants": []
+ "observed_variants": [
+  "xhigh"
+ ]
 }

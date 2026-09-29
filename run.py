@@ -221,9 +221,15 @@ def run_cmd(cmd, stdin, cwd, timeout):
         return (e.stdout or ""), f"timeout after {timeout}s", -1, time.time() - t0
 
 EXECUTORS = {
-    "claude": lambda model: f"claude -p --model {model} --dangerously-skip-permissions --strict-mcp-config",
-    "codex": lambda model: f"codex exec --model {model} --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check -o .ceno-reply.txt - >/dev/null 2>&1; cat .ceno-reply.txt",
-    "opencode": lambda model: f"opencode run --model {model}",
+    "claude": lambda model, variant: f"claude -p --model {model} --dangerously-skip-permissions --strict-mcp-config",
+    "codex": lambda model, variant: (
+        "codex exec "
+        + (f"-c model_reasoning_effort={variant} " if variant else "")
+        + f"--model {model} --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check -o .ceno-reply.txt - >/dev/null 2>&1; cat .ceno-reply.txt"
+    ),
+    "opencode": lambda model, variant: (
+        "opencode run " + (f"--variant {variant} " if variant else "") + f"--model {model}"
+    ),
 }
 
 # ------------------------------------------------------------------ workspace + snapshot
@@ -514,6 +520,7 @@ def main():
     ap.add_argument("--list", action="store_true"); ap.add_argument("--self-test", action="store_true")
     ap.add_argument("--name", help="result label, e.g. sonnet-5, sonnet-5+audit-skill")
     ap.add_argument("--executor", choices=sorted(EXECUTORS)); ap.add_argument("--model")
+    ap.add_argument("--variant", help="provider-specific reasoning effort, e.g. minimal, low, medium, high, xhigh; unset means the provider default, which is not recorded")
     ap.add_argument("--cmd", help="custom executor: prompt on stdin, reply on stdout")
     ap.add_argument("--harness", help="label for the card (defaults to --executor)")
     ap.add_argument("--skill", help="URL or path of a SKILL.md installed in every workspace")
@@ -533,7 +540,7 @@ def main():
     if a.self_test:
         sys.exit(0 if self_test(load_evals(a.benchmark, a.track, a.only, a.limit, benchmarks)) else 1)
     if not a.name: ap.error("--name is required for a run")
-    cmd = a.cmd or (EXECUTORS[a.executor](a.model) if a.executor and a.model else None)
+    cmd = a.cmd or (EXECUTORS[a.executor](a.model, a.variant) if a.executor and a.model else None)
     if not cmd: ap.error("give --executor and --model, or --cmd")
 
     evals = load_evals(a.benchmark, a.track, a.only, None, benchmarks)
@@ -567,6 +574,7 @@ def main():
         w_total = sum(e.get("weight", 1) for e in all_evals)
         w_pass = sum(r.get("weight", 1) for r in rows.values() if r["pass"])
         doc = {"name": a.name, "model": a.model or a.name, "harness": a.harness or a.executor or "custom",
+               "variant": a.variant,
                "skill": a.skill, "executor_cmd": cmd, "judge_cmd": a.judge_cmd, "started": started,
                "benchmarks": {bid: {"version": b.get("version"), "manifest": b["manifest"]}
                               for bid, b in benchmarks.items() if any(e["_benchmark"] == bid for e in all_evals)},

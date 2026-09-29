@@ -4,6 +4,7 @@
  "config": "opus-5.5",
  "model": "claude-opus-5-5",
  "harness": "claude code",
+ "variant": null,
  "skill": null,
  "started": "2026-09-29T16:56:23+00:00",
  "manifest": "4aa67fc4f695",
@@ -134,5 +135,7 @@
   "transactions-25-safe-tx-hash": true
  },
  "cost": null,
- "source_file": "/home/ste/Documents/ceno/ethevals/results/opus-5.5.json"
+ "source_file": "/home/ste/Documents/ceno/ethevals/results/opus-5.5.json",
+ "stale": false,
+ "observed_variants": []
 }

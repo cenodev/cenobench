@@ -4,6 +4,7 @@
  "config": "fable-5.1",
  "model": "fable",
  "harness": "claude code",
+ "variant": null,
  "skill": null,
  "started": "2026-09-21T17:02:07+00:00",
  "manifest": "4aa67fc4f695",
@@ -134,5 +135,7 @@
   "transactions-25-safe-tx-hash": true
  },
  "cost": null,
- "source_file": "/home/ste/Documents/ceno/ethevals/results/fable-5.1.json"
+ "source_file": "/home/ste/Documents/ceno/ethevals/results/fable-5.1.json",
+ "stale": false,
+ "observed_variants": []
 }
