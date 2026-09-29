@@ -1,0 +1,110 @@
+{
+ "generated": "2026-09-29T20:48:53+00:00",
+ "benchmarks": [
+  {
+   "id": "dapp-lifecycle",
+   "name": "Dapp Lifecycle",
+   "version": "0.1.0",
+   "desc": "Build, test, secure and audit onchain applications. Artifacts are executed, not read: hidden Foundry tests run against what the model leaves behind.\n",
+   "manifest": "459de77a9d35",
+   "tracks": [
+    {
+     "id": "build",
+     "name": "Build",
+     "desc": "Implement a dapp or protocol from a written spec. Hidden Foundry tests decide.",
+     "count": 2
+    },
+    {
+     "id": "test",
+     "name": "Test",
+     "desc": "Write a suite that catches real regressions. Seeded variants must die.",
+     "count": 1
+    },
+    {
+     "id": "secure",
+     "name": "Secure",
+     "desc": "Fix a live vulnerability without breaking behavior. A hidden exploit decides.",
+     "count": 1
+    },
+    {
+     "id": "audit",
+     "name": "Audit",
+     "desc": "Find what is actually wrong. False positives count against you.",
+     "count": 1
+    }
+   ],
+   "evals": [
+    {
+     "id": "audit-01-seeded-defi",
+     "track": "audit",
+     "title": "Findings report for a small DeFi system",
+     "kind": "goal",
+     "graded": "judge",
+     "summary": "Audit an oracle, a lending pool and a rewards contract with three seeded issues. Report findings as JSON; false positives count against you.",
+     "source": {
+      "mistake": "Readers that miss access-control holes and precision loss, and reports padded with issues that do not exist.",
+      "seen_in": "real agent audit output",
+      "credit": "cenobench"
+     },
+     "fixture": "audit-01-seeded-defi"
+    },
+    {
+     "id": "build-01-erc4626-vault",
+     "track": "build",
+     "title": "Yield vault with correct share accounting",
+     "kind": "exec",
+     "graded": "exec",
+     "summary": "Implement a 6-decimal share vault from spec. Hidden tests check tracked accounting, rounding direction, and that donations do not move the share price.",
+     "source": {
+      "mistake": "Using the token balance as totalAssets (a direct transfer moves the share price), rounding deposits up or withdrawals down, and minting shares without pulling the asset.",
+      "seen_in": "real agent output on vault and ERC-4626 tasks",
+      "credit": "cenobench"
+     },
+     "fixture": "build-01-erc4626-vault"
+    },
+    {
+     "id": "build-02-crowdfund",
+     "track": "build",
+     "title": "Crowdfund with deadline, hard cap and refunds",
+     "kind": "exec",
+     "graded": "exec",
+     "summary": "Implement an ETH crowdfund from spec. Hidden tests hit the deadline boundary, the hard cap, direct sends, owner withdrawal and double refunds.",
+     "source": {
+      "mistake": "Off-by-one deadline checks, letting contributions exceed the cap, missing owner/deadline guards on withdrawal, and refunds that zero state after the transfer.",
+      "seen_in": "real agent output on crowdfund and escrow tasks",
+      "credit": "cenobench"
+     },
+     "fixture": "build-02-crowdfund"
+    },
+    {
+     "id": "secure-01-reentrancy-fix",
+     "track": "secure",
+     "title": "Fix a reentrant withdrawal in a live pool",
+     "kind": "exec",
+     "graded": "exec",
+     "summary": "A live ETH pool sends before zeroing stake. Fix it; a hidden exploit must fail and hidden behavior tests must still pass.",
+     "source": {
+      "mistake": "Sending ETH before zeroing state, and partial fixes (a guard cleared early, a solvency check instead of an ordering fix).",
+      "seen_in": "real agent output on reentrancy fixes",
+      "credit": "cenobench"
+     },
+     "fixture": "secure-01-reentrancy"
+    },
+    {
+     "id": "test-01-ledger-mutation",
+     "track": "test",
+     "title": "Write tests that kill every seeded regression",
+     "kind": "exec",
+     "graded": "mutation",
+     "summary": "Pin the behavior of a small token. The suite must be green as shipped and fail against five hidden single-behavior variants.",
+     "source": {
+      "mistake": "Happy-path-only test suites that assert on internals and miss ownership, allowance and supply-accounting regressions.",
+      "seen_in": "real agent output on test-writing tasks",
+      "credit": "cenobench"
+     },
+     "fixture": "test-01-ledger"
+    }
+   ]
+  }
+ ]
+}

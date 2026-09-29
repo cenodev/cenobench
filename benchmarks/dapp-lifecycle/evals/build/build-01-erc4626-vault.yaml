@@ -1,0 +1,65 @@
+id: build-01-erc4626-vault
+benchmark: dapp-lifecycle
+track: build
+title: Yield vault with correct share accounting
+kind: exec
+summary: Implement a 6-decimal share vault from spec. Hidden tests check tracked accounting, rounding direction, and that donations do not move the share price.
+prompt: |
+  A small onchain fund needs a share vault for a 6-decimal stablecoin. Implement it.
+
+  Write `src/Vault.sol` containing a contract named `Vault`.
+
+  Constructor: `constructor(address asset_)` where `asset_` is the ERC-20 to vault
+  (see `src/IERC20.sol`, `src/MockERC20.sol`). The deployer becomes the owner.
+
+  Public interface:
+
+  - `asset() view returns (address)` — the underlying token.
+  - `totalAssets() view returns (uint256)` — the tracked amount of asset the vault
+    manages: deposits plus harvested yield minus withdrawals. Direct token transfers
+    to the vault are donations and must NOT change `totalAssets`, `convertToShares`
+    or `convertToAssets`.
+  - `totalSupply() view returns (uint256)` — total shares.
+  - `balanceOf(address) view returns (uint256)` — shares of an account.
+  - `convertToShares(uint256 assets) view returns (uint256)` — `assets * totalSupply / totalAssets`
+    rounded DOWN; 1:1 while the vault is empty.
+  - `convertToAssets(uint256 shares) view returns (uint256)` — `shares * totalAssets / totalSupply`
+    rounded DOWN; 1:1 while the vault is empty.
+  - `deposit(uint256 assets) returns (uint256 shares)` — pulls `assets` from the caller with
+    `transferFrom`, mints `convertToShares(assets)` shares to the caller. Reverts if `assets == 0`
+    or if the computed shares are 0. Emits `Deposit(caller, assets, shares)`.
+  - `withdraw(uint256 assets) returns (uint256 shares)` — burns shares and transfers `assets`
+    to the caller. Shares burned are `ceil(assets * totalSupply / totalAssets)`. Reverts if
+    `assets == 0`, if `assets > totalAssets`, or if the caller owns fewer shares than required.
+    Emits `Withdraw(caller, assets, shares)`.
+  - `harvest(uint256 assets) onlyOwner` — owner-only yield reporting: pulls `assets` from the
+    caller with `transferFrom` and adds them to tracked assets. This is yield: the share price
+    rises.
+
+  Events:
+
+    event Deposit(address indexed caller, uint256 assets, uint256 shares);
+    event Withdraw(address indexed caller, uint256 assets, uint256 shares);
+
+  Solidity 0.8.x, exact integer math, no fees. Put the implementation in `src/Vault.sol`;
+  helper contracts may live in the same file. Do not modify `foundry.toml`,
+  `src/IERC20.sol` or `src/MockERC20.sol`.
+
+  You may run the project's tests while you work. The deliverable is graded by tests you
+  cannot see, so follow the spec exactly. Treat this as production code.
+fixture: build-01-erc4626-vault
+frozen:
+  - foundry.toml
+  - src/IERC20.sol
+  - src/MockERC20.sol
+deliverable: src/Vault.sol
+exec:
+  runner: forge
+  match: test/ceno/*
+  min_tests: 8
+  timeout: 600
+grading: exec
+source:
+  mistake: Using the token balance as totalAssets (a direct transfer moves the share price), rounding deposits up or withdrawals down, and minting shares without pulling the asset.
+  seen_in: real agent output on vault and ERC-4626 tasks
+  credit: cenobench

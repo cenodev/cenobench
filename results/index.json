@@ -1,0 +1,10 @@
+{
+ "generated": "2026-09-29T20:48:53+00:00",
+ "benchmarks": {
+  "dapp-lifecycle": {
+   "version": "0.1.0",
+   "manifest": "459de77a9d35"
+  }
+ },
+ "runs": []
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "F-1",
+    "title": "Anyone can set the collateral price",
+    "severity": "high",
+    "location": "src/PriceOracle.sol:setPrice()",
+    "root_cause": "setPrice has no access control; the admin-only intent is documented but not enforced.",
+    "impact": "An attacker can set an arbitrary price and then borrow against inflated collateral or liquidate other users at a manipulated price.",
+    "recommendation": "Store an admin address at deployment and require msg.sender == admin in setPrice."
+  },
+  {
+    "id": "F-2",
+    "title": "Liquidations do not check position health",
+    "severity": "high",
+    "location": "src/LendingPool.sol:liquidate()",
+    "root_cause": "liquidate only requires debt > 0. There is no check that the position is below the maintenance threshold.",
+    "impact": "Any caller can liquidate any healthy position, seizing its collateral and clearing its debt.",
+    "recommendation": "Require that the position's LTV is at or above the maintenance threshold before seizing collateral."
+  },
+  {
+    "id": "F-3",
+    "title": "Rewards truncate to zero below one token",
+    "severity": "medium",
+    "location": "src/Rewards.sol:earned()",
+    "root_cause": "The formula divides before multiplying: staked[user] / 1e18 * REWARD_PER_TOKEN. Integer division truncates any stake below 1e18 to zero.",
+    "impact": "Users with stakes under one token earn nothing; all other users lose the fractional part of their rewards.",
+    "recommendation": "Multiply before dividing: staked[user] * REWARD_PER_TOKEN / 1e18."
+  }
+]

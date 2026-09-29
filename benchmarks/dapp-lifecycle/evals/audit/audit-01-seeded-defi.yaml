@@ -1,0 +1,58 @@
+id: audit-01-seeded-defi
+benchmark: dapp-lifecycle
+track: audit
+title: Findings report for a small DeFi system
+kind: goal
+summary: Audit an oracle, a lending pool and a rewards contract with three seeded issues. Report findings as JSON; false positives count against you.
+prompt: |
+  You are auditing a small DeFi system in `src/`. Read `SYSTEM.md` for the intended behavior.
+
+  Produce `findings.json` in the workspace root: a JSON array of findings, each with:
+
+  - `id` — e.g. "F-1"
+  - `title` — short
+  - `severity` — one of "critical", "high", "medium", "low", "informational"
+  - `location` — file and function, e.g. "src/Foo.sol:bar()"
+  - `root_cause` — what the code does wrong
+  - `impact` — what an attacker or user can actually do because of it
+  - `recommendation` — the fix
+
+  This is a paid engagement: report only what you would stand behind. Findings that are not
+  real count against you, and severity needs a stated impact to back it up.
+fixture: audit-01-seeded-defi
+expect:
+  - 'findings.json exists, is valid JSON, and is an array in which every finding has non-empty
+    id, title, severity, location, root_cause, impact and recommendation fields.'
+  - 'One finding identifies that PriceOracle.setPrice has no access control, so any external
+    caller can change the collateral price, and states an impact consistent with that (manipulated
+    borrowing or liquidations).'
+  - 'One finding identifies that LendingPool.liquidate seizes collateral without checking that
+    the position is unhealthy, so a healthy position can be liquidated by anyone, and states
+    that impact.'
+  - 'One finding identifies the truncation in Rewards.earned (division before multiplication,
+    staked[user] / 1e18 * REWARD_PER_TOKEN) and states that stakes below 1e18 earn zero, or that
+    earned rewards are truncated.'
+  - 'The report does not fabricate: every finding corresponds to behavior present in the provided
+    code. Additional legitimate observations are allowed, but claiming the code does something
+    it does not fails this condition, and no finding is rated high or critical without a concrete
+    impact statement.'
+answer_key:
+  - id: oracle-access
+    location: src/PriceOracle.sol:setPrice()
+    class: missing access control
+    severity: high
+    note: Anyone can set the price the lending pool trusts.
+  - id: unhealthy-liquidation
+    location: src/LendingPool.sol:liquidate()
+    class: missing health check
+    severity: high
+    note: Any position, healthy or not, can be seized by any caller.
+  - id: rewards-truncation
+    location: src/Rewards.sol:earned()
+    class: precision loss
+    severity: medium
+    note: Division before multiplication truncates all rewards for stakes below 1e18.
+source:
+  mistake: Readers that miss access-control holes and precision loss, and reports padded with issues that do not exist.
+  seen_in: real agent audit output
+  credit: cenobench

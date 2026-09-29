@@ -1,0 +1,41 @@
+id: test-01-ledger-mutation
+benchmark: dapp-lifecycle
+track: test
+title: Write tests that kill every seeded regression
+kind: exec
+summary: Pin the behavior of a small token. The suite must be green as shipped and fail against five hidden single-behavior variants.
+prompt: |
+  `src/Ledger.sol` is a small, complete ERC-20-style token. Its current behavior is the
+  specification.
+
+  Write a Foundry test suite for it under `test/`. Files must be named `*.t.sol`.
+
+  Your suite is graded by mutation testing:
+
+  - It runs against the code as shipped. Every test must pass.
+  - It runs again once per hidden variant, where a single behavior of `Ledger` has been
+    changed. Your suite passes only if at least one of your tests fails for every variant.
+
+  Write tests that pin the exact observable contract: ownership, minting, burning, transfer
+  rules, allowance semantics (including unlimited allowances), zero and edge inputs. Assert on
+  observable state and return values, not on source details — the suite is re-run against
+  variants of the source, so tests that break when the source changes are useless.
+
+  Do not modify `src/Ledger.sol` or `foundry.toml`.
+
+  You may run the project's tests while you work. Treat this as a suite that has to catch real
+  regressions in production code.
+fixture: test-01-ledger
+frozen:
+  - foundry.toml
+  - src/Ledger.sol
+deliverable: test/
+exec:
+  runner: forge
+  min_tests: 5
+  timeout: 900
+grading: mutation
+source:
+  mistake: Happy-path-only test suites that assert on internals and miss ownership, allowance and supply-accounting regressions.
+  seen_in: real agent output on test-writing tasks
+  credit: cenobench

@@ -1,0 +1,42 @@
+id: secure-01-reentrancy-fix
+benchmark: dapp-lifecycle
+track: secure
+title: Fix a reentrant withdrawal in a live pool
+kind: exec
+summary: A live ETH pool sends before zeroing stake. Fix it; a hidden exploit must fail and hidden behavior tests must still pass.
+prompt: |
+  `src/StakingPool.sol` is a live ETH staking pool that holds other users' funds.
+
+  An auditor found that `withdrawAll` is reentrant: it sends the caller's ETH before zeroing
+  the caller's stake, so a malicious contract can re-enter `withdrawAll` and drain ETH staked
+  by other users.
+
+  Fix the vulnerability. Deliver the fixed contract in `src/StakingPool.sol`.
+
+  Constraints:
+
+  - Keep the constructor `constructor()` argument-free.
+  - Keep the public interface unchanged: `stake() external payable`, `withdrawAll() external`,
+    `stakeOf(address) public view`, and the `Staked` / `Withdrawn` events.
+  - Keep normal behavior unchanged: `stake` credits `msg.value`; `withdrawAll` sends the
+    caller's full stake and zeroes it; calling `withdrawAll` with nothing staked reverts.
+  - Do not modify `test/Pool.t.sol` or `foundry.toml`.
+
+  Your fix is checked by an exploit you cannot see and by behavior tests you cannot see.
+  A change that only blocks one specific call pattern, or that disables functionality, does
+  not pass. This pool is deployed and people's money is in it.
+fixture: secure-01-reentrancy
+frozen:
+  - foundry.toml
+  - test/Pool.t.sol
+deliverable: src/StakingPool.sol
+exec:
+  runner: forge
+  match: test/ceno/*
+  min_tests: 5
+  timeout: 600
+grading: exec
+source:
+  mistake: Sending ETH before zeroing state, and partial fixes (a guard cleared early, a solvency check instead of an ordering fix).
+  seen_in: real agent output on reentrancy fixes
+  credit: cenobench

@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# forge artifacts if a fixture is accidentally compiled in place
+out/
+cache/
+broadcast/
+
+# harness scratch
+.cenobench/
+*.tmp.json
+
+# judge/executor leftovers
+.ceno-reply.txt

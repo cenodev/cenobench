@@ -1,0 +1,67 @@
+id: build-02-crowdfund
+benchmark: dapp-lifecycle
+track: build
+title: Crowdfund with deadline, hard cap and refunds
+kind: exec
+summary: Implement an ETH crowdfund from spec. Hidden tests hit the deadline boundary, the hard cap, direct sends, owner withdrawal and double refunds.
+prompt: |
+  Implement a crowdfund for an ETH raise.
+
+  Write `src/Crowdfund.sol` containing a contract named `Crowdfund`.
+
+  Constructor: `constructor(uint256 goal_, uint256 deadline_)`. Reverts if `goal_ == 0` or if
+  `deadline_ <= block.timestamp`. The deployer is the owner.
+
+  Public interface:
+
+  - `owner() view returns (address)`
+  - `goal() view returns (uint256)` — the raise target in wei.
+  - `deadline() view returns (uint256)` — unix timestamp.
+  - `totalRaised() view returns (uint256)`
+  - `contributions(address) view returns (uint256)`
+  - `contribute() external payable`
+    - Reverts unless `block.timestamp < deadline`. At the deadline the campaign is closed.
+    - Reverts if `msg.value == 0`.
+    - Reverts if `totalRaised + msg.value > goal`. The cap is hard: a contribution can land
+      exactly on the goal, never past it.
+    - Adds to `contributions[msg.sender]` and `totalRaised`.
+    - Emits `Contributed(contributor, amount, totalRaised)`.
+  - `withdrawFunds() external`
+    - Only the owner; reverts otherwise.
+    - Reverts before the deadline and while `totalRaised < goal`.
+    - Sends the entire contract balance to the owner and sets `totalRaised` to 0.
+    - Emits `FundsWithdrawn(owner, amount)`.
+  - `refund() external`
+    - Reverts before the deadline.
+    - Reverts if `totalRaised >= goal`. Funded campaigns do not refund.
+    - Reverts if the caller has no contribution.
+    - Zeroes the caller's contribution and decrements `totalRaised` before sending the
+      contribution back.
+    - Emits `Refunded(caller, amount)`.
+
+  Events:
+
+    event Contributed(address indexed contributor, uint256 amount, uint256 totalRaised);
+    event FundsWithdrawn(address indexed owner, uint256 amount);
+    event Refunded(address indexed contributor, uint256 amount);
+
+  The contract must not accept plain ETH transfers: no payable `receive` or `fallback`.
+  Use low-level `call` for outgoing transfers and require success. Solidity 0.8.x.
+
+  Put the implementation in `src/Crowdfund.sol`; helper contracts may live in the same file.
+  You may run the project's tests while you work. The deliverable is graded by tests you
+  cannot see, so follow the spec exactly. Treat this as production code.
+fixture: build-02-crowdfund
+frozen:
+  - foundry.toml
+deliverable: src/Crowdfund.sol
+exec:
+  runner: forge
+  match: test/ceno/*
+  min_tests: 8
+  timeout: 600
+grading: exec
+source:
+  mistake: Off-by-one deadline checks, letting contributions exceed the cap, missing owner/deadline guards on withdrawal, and refunds that zero state after the transfer.
+  seen_in: real agent output on crowdfund and escrow tasks
+  credit: cenobench

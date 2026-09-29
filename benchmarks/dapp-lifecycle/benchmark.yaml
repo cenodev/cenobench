@@ -1,0 +1,19 @@
+id: dapp-lifecycle
+name: Dapp Lifecycle
+version: 0.1.0
+desc: >
+  Build, test, secure and audit onchain applications. Artifacts are executed, not read:
+  hidden Foundry tests run against what the model leaves behind.
+tracks:
+  - id: build
+    name: Build
+    desc: Implement a dapp or protocol from a written spec. Hidden Foundry tests decide.
+  - id: test
+    name: Test
+    desc: Write a suite that catches real regressions. Seeded variants must die.
+  - id: secure
+    name: Secure
+    desc: Fix a live vulnerability without breaking behavior. A hidden exploit decides.
+  - id: audit
+    name: Audit
+    desc: Find what is actually wrong. False positives count against you.
