@@ -1,14 +1,14 @@
 {
  "benchmark": "ethevals",
  "benchmark_name": "ETHEVALS",
- "config": "muse-spark-1.3-contributor",
- "model": "opencode-go/muse-spark-1.3-contributor",
+ "config": "mimo-v2.6-flash",
+ "model": "opencode-go/mimo-v2.6-flash",
  "harness": "opencode",
  "variant": null,
  "skill": null,
- "started": "2026-09-29T21:59:06+00:00",
+ "started": "2026-09-30T01:03:30+00:00",
  "manifest": "4aa67fc4f695",
- "score": 86.0,
+ "score": 83.0,
  "tracks": {
   "concepts": {
    "pass": 25,
@@ -16,14 +16,14 @@
    "score": 100.0
   },
   "transactions": {
-   "pass": 25,
+   "pass": 21,
    "total": 25,
-   "score": 100.0
+   "score": 84.0
   },
   "building": {
-   "pass": 14,
+   "pass": 15,
    "total": 25,
-   "score": 56.0
+   "score": 60.0
   },
   "security": {
    "pass": 22,
@@ -35,7 +35,7 @@
  "partial": false,
  "verdicts": {
   "building-01-no-infinite-approvals": true,
-  "building-02-approve-flow-states": false,
+  "building-02-approve-flow-states": true,
   "building-03-usdc-decimals": true,
   "building-04-se2-staking-dapp": false,
   "building-05-button-lifecycle": true,
@@ -51,14 +51,14 @@
   "building-15-agent-custody": false,
   "building-16-one-click-from-eoa": true,
   "building-17-x402-paid-api": true,
-  "building-18-create2-address-myth": true,
+  "building-18-create2-address-myth": false,
   "building-19-deploy-verify-ship": false,
   "building-20-existing-eoa-smart-account": true,
   "building-21-5792-fallback": true,
   "building-22-sign-transaction": true,
   "building-23-compact-signature": true,
   "building-24-4337-2d-nonce": true,
-  "building-25-hash-message-string": false,
+  "building-25-hash-message-string": true,
   "concepts-01-nothing-is-automatic": true,
   "concepts-02-walkaway-test": true,
   "concepts-03-keeper-bounty-math": true,
@@ -88,7 +88,7 @@
   "security-02-read-only-reentrancy": true,
   "security-03-cross-function-reentrancy": true,
   "security-04-vault-inflation": true,
-  "security-05-spot-price-oracle": true,
+  "security-05-spot-price-oracle": false,
   "security-06-fee-on-transfer-books": true,
   "security-07-oz-v5-approvals": true,
   "security-08-signature-replay": true,
@@ -104,7 +104,7 @@
   "security-18-decimal-scale-mismatch": true,
   "security-19-permissionless-listing": false,
   "security-20-borrowing-market": false,
-  "security-21-malicious-permit": false,
+  "security-21-malicious-permit": true,
   "security-22-permit2-batch": true,
   "security-23-decimal-verifying-contract": true,
   "security-24-siwe-domain": true,
@@ -113,9 +113,9 @@
   "transactions-02-abi-encode-static": true,
   "transactions-03-decode-calldata": true,
   "transactions-04-dynamic-types": true,
-  "transactions-05-struct-argument": true,
+  "transactions-05-struct-argument": false,
   "transactions-06-token-decimals": true,
-  "transactions-07-bounded-approve": true,
+  "transactions-07-bounded-approve": false,
   "transactions-08-permit-2612": true,
   "transactions-09-event-signature": true,
   "transactions-10-read-a-receipt": true,
@@ -123,7 +123,7 @@
   "transactions-12-effective-gas-price": true,
   "transactions-13-nonce-replacement": true,
   "transactions-14-gwei-to-wei": true,
-  "transactions-15-intrinsic-gas": true,
+  "transactions-15-intrinsic-gas": false,
   "transactions-16-create2-truncation": true,
   "transactions-17-eip55-checksum": true,
   "transactions-18-storage-packing": true,
@@ -133,25 +133,25 @@
   "transactions-22-legacy-v-chainid": true,
   "transactions-23-serialize-zero-tx": true,
   "transactions-24-7702-self-nonce": true,
-  "transactions-25-safe-tx-hash": true
+  "transactions-25-safe-tx-hash": false
  },
  "cost": {
-  "usd": 0.2048,
+  "usd": 0.6948,
   "scope": "executor",
   "source": "measured:opencode-db",
   "tokens": {
-   "input": 1308778,
-   "output": 139922,
-   "reasoning": 144296,
-   "cache_read": 8546901,
+   "input": 2111762,
+   "output": 272520,
+   "reasoning": 776997,
+   "cache_read": 37588288,
    "cache_write": 0
   },
-  "steps": 421,
+  "steps": 657,
   "variants": []
  },
- "source_file": "/home/ste/Documents/ceno/ethevals/results/muse-spark-1.3-contributor.json",
+ "source_file": "/home/ste/Documents/ceno/ethevals/results/mimo-v2.6-flash.json",
  "stale": false,
  "observed_variants": [],
- "exec_seconds": 3686.7,
- "duration_s": 1025
+ "exec_seconds": 23041.8,
+ "duration_s": 6283
 }

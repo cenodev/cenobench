@@ -38,6 +38,7 @@
   .chip.good b { color: var(--accent); }
   .chip.bad b { color: var(--warn); }
   .stale { color: var(--warn); border: 1px solid var(--warn); padding: 0 5px; font-size: 10px; margin-left: 6px; }
+  .partial { color: #fbbf24; border: 1px solid #fbbf24; padding: 0 5px; font-size: 10px; margin-left: 6px; }
   .none { color: var(--dim); font-size: 12px; }
   .unknown { display: flex; flex-wrap: wrap; gap: 8px; }
   .unknown button { font: 12px var(--mono); background: none; border: 1px solid var(--line); color: var(--dim); padding: 3px 10px; cursor: pointer; }
@@ -75,7 +76,7 @@
     <h2>Cards</h2>
     <div class="body">
       <table>
-        <thead><tr><th>Config</th><th>Benchmarks</th><th class="num">Mark</th><th class="num">Cost (executor)</th></tr></thead>
+        <thead><tr><th>Config</th><th>Benchmarks</th><th class="num">Mark</th><th class="num">Cost (executor)</th><th class="num">Time</th></tr></thead>
         <tbody id="cards"></tbody>
       </table>
     </div>
@@ -91,6 +92,12 @@ let INDEX = null, SELECTED = null;
 
 function esc(s) { const d = document.createElement("i"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
 function usd(v) { return v == null ? "—" : "$" + (v < 0.1 ? v.toFixed(4) : v.toFixed(3)); }
+function dur(s) {
+  if (s == null) return "—";
+  if (s < 90) return Math.round(s) + "s";
+  if (s < 5400) return (s / 60).toFixed(1) + "m";
+  return (s / 3600).toFixed(1) + "h";
+}
 function chip(bid, b) {
   const cls = b.score >= 90 ? "good" : b.score === 0 ? "bad" : "";
   return `<span class="chip ${cls}" title="${esc(b.name || bid)}">${esc(bid)} <b>${b.score}</b></span>`;
@@ -137,7 +144,7 @@ function renderChart() {
     const x = px(c.cost_usd), y = py(c.mark);
     parts.push(`<g class="pt${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
       + `<circle cx="${x}" cy="${y}" r="6"/>`
-      + `<text x="${x + 10}" y="${y + 3}">${esc(c.config)}${esc(vtag(c))} — ${c.mark}</text></g>`);
+      + `<text x="${x + 10}" y="${y + 3}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : ""} — ${c.mark}</text></g>`);
   }
   svg.innerHTML = parts.join("");
   svg.querySelectorAll(".pt").forEach(g => g.addEventListener("click", () => select(g.dataset.config)));
@@ -155,10 +162,11 @@ function renderCards() {
   $("#cards").innerHTML = INDEX.configs.map(c => {
     const chips = Object.entries(c.benchmarks).sort().map(([bid, b]) => chip(bid, b)).join("");
     return `<tr class="config${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
-      + `<td>${esc(c.config)}${c.stale ? '<span class="stale">STALE</span>' : ""}<br><span class="sk">${esc(c.harness || "")}${c.skill ? " + skill" : ""}${esc(vtag(c))}</span></td>`
+      + `<td>${esc(c.config)}${c.stale ? '<span class="stale">STALE</span>' : ""}${c.partial ? '<span class="partial">PARTIAL</span>' : ""}<br><span class="sk">${esc(c.harness || "")}${c.skill ? " + skill" : ""}${esc(vtag(c))}</span></td>`
       + `<td><div class="chips">${chips}</div></td>`
       + `<td class="num">${c.mark == null ? "—" : c.mark}</td>`
-      + `<td class="num">${usd(c.cost_usd)}</td></tr>`;
+      + `<td class="num">${usd(c.cost_usd)}</td>`
+      + `<td class="num">${dur(c.duration_s)}</td></tr>`;
   }).join("");
   $("#cards").querySelectorAll("tr").forEach(tr => tr.addEventListener("click", () => select(tr.dataset.config)));
 }
@@ -196,6 +204,8 @@ async function select(config) {
       <dt>effort</dt><dd>${esc(effort(c))}</dd>
       <dt>mark</dt><dd>${c.mark}${c.benchmarks_scored ? ` · mean of ${c.benchmarks_scored} benchmarks` : ""}${c.stale ? ' <span class="stale">STALE — ran an older eval manifest</span>' : ""}</dd>
       <dt>cost</dt><dd>${usd(c.cost_usd)}${c.cost_complete ? " · complete" : " · incomplete"}</dd>
+      <dt>wall clock</dt><dd>${dur(c.duration_s)}</dd>
+      <dt>model time</dt><dd>${dur(c.exec_seconds)} summed over evals</dd>
       <dt>runs</dt><dd>${cost}</dd>
     </dl>
     <div class="grid2" style="margin-top:16px">

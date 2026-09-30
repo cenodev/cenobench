@@ -68,9 +68,10 @@ def current_manifest(source):
                 return b.get("manifest")
     return d.get("manifest")
 
-def measure_cost(prefix, model, t0=None, t1=None):
-    """Executor-only cost/tokens from opencode's DB: sessions under `prefix` for `model`,
-    excluding judge sessions, created no later than t1."""
+def measure_cost(prefix, model, variant=None, t1=None):
+    """Executor-only cost/tokens from opencode's DB: sessions under `prefix` for `model`
+    and reasoning `variant`, excluding judge sessions, created no later than t1.
+    Sums every matching session, so resumed and retried runs count toward the card."""
     if not os.path.exists(OPENCODE_DB):
         return None
     model = (model or "").split("@")[0]
@@ -100,12 +101,12 @@ def measure_cost(prefix, model, t0=None, t1=None):
             continue
         if provider and m.get("providerID") != provider:
             continue
+        if (m.get("variant") or None) != (variant or None):
+            continue
         t = (m.get("time") or {}).get("created")
         if t is None:
             continue
         t = t / 1000.0
-        if t0 and t < t0 - 5:
-            continue
         if t1 and t > t1 + 60:
             continue
         if m.get("variant"):
@@ -141,21 +142,33 @@ def normalize(doc, source, path):
         "score": overall(doc),
         "tracks": tracks,
         "evals_run": len(rows),
+        "partial": len(rows) < ((doc.get("total") or {}).get("total") or len(rows)),
         "verdicts": {r["id"]: bool(r["pass"]) for r in rows},
         "cost": None,
         "source_file": os.path.relpath(path, ROOT) if path.startswith(ROOT) else path,
     }
     prefix = source.get("temp_prefix")
+    hint = rec["variant"]
+    if not hint and "@" in name:
+        hint = name.rsplit("@", 1)[1]
     if prefix:
-        t0 = parse_iso(doc.get("started"))
         try:
             t1 = os.path.getmtime(path)
         except OSError:
             t1 = None
-        rec["cost"] = measure_cost(prefix, rec["model"], t0, t1)
+        rec["cost"] = measure_cost(prefix, rec["model"], hint, t1)
     cur = source.get("_current_manifest")
     rec["stale"] = bool(cur and rec["manifest"] and rec["manifest"] != cur)
     rec["observed_variants"] = (rec["cost"] or {}).get("variants", [])
+    rec["exec_seconds"] = round(sum(r.get("seconds") or 0 for r in rows), 1)
+    rec["duration_s"] = None
+    t0 = parse_iso(doc.get("started"))
+    try:
+        t1 = os.path.getmtime(path)
+    except OSError:
+        t1 = None
+    if t0 and t1 and t1 > t0:
+        rec["duration_s"] = round(t1 - t0)
     return rec
 
 def slug(name):
@@ -199,7 +212,10 @@ def main():
                 "cost_source": (rec["cost"] or {}).get("source"),
                 "manifest": rec["manifest"],
                 "stale": rec["stale"],
+                "partial": rec["partial"],
                 "observed_variants": rec["observed_variants"],
+                "duration_s": rec["duration_s"],
+                "exec_seconds": rec["exec_seconds"],
                 "file": os.path.relpath(os.path.join(out_dir, slug(name) + ".json"), ROOT),
             }
     out = []
@@ -208,9 +224,14 @@ def main():
         costs = [b["cost_usd"] for b in c["benchmarks"].values() if b["cost_usd"] is not None]
         c["mark"] = round(sum(scores) / len(scores), 1) if scores else None
         c["cost_usd"] = round(sum(costs), 4) if costs else None
+        durs = [b.get("duration_s") for b in c["benchmarks"].values() if b.get("duration_s")]
+        exs = [b.get("exec_seconds") for b in c["benchmarks"].values() if b.get("exec_seconds")]
+        c["duration_s"] = round(sum(durs)) if durs else None
+        c["exec_seconds"] = round(sum(exs), 1) if exs else None
         c["benchmarks_scored"] = len(scores)
         c["cost_complete"] = bool(c["benchmarks"]) and len(costs) == len(c["benchmarks"])
         c["stale"] = any(b.get("stale") for b in c["benchmarks"].values())
+        c["partial"] = any(b.get("partial") for b in c["benchmarks"].values())
         out.append(c)
     out.sort(key=lambda c: (-(c["mark"] or 0), c["cost_usd"] if c["cost_usd"] is not None else 1e18))
     index = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "configs": out}

@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-29T23:41:46+00:00",
+ "generated": "2026-09-30T03:08:26+00:00",
  "configs": [
   {
    "config": "fable-5.1+ethskills",
@@ -15,15 +15,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 708837,
+     "exec_seconds": 7102.0,
      "file": "runs/ethevals/fable-5.1+ethskills.json"
     }
    },
    "mark": 93.0,
    "cost_usd": null,
+   "duration_s": 708837,
+   "exec_seconds": 7102.0,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "gpt-6-astra",
@@ -39,15 +45,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 708940,
+     "exec_seconds": 5400.1,
      "file": "runs/ethevals/gpt-6-astra.json"
     }
    },
    "mark": 93.0,
    "cost_usd": null,
+   "duration_s": 708940,
+   "exec_seconds": 5400.1,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "opus-5",
@@ -63,15 +75,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 708736,
+     "exec_seconds": 9072.9,
      "file": "runs/ethevals/opus-5.json"
     }
    },
    "mark": 89.0,
    "cost_usd": null,
+   "duration_s": 708736,
+   "exec_seconds": 9072.9,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "opus-5.5",
@@ -87,15 +105,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 18084,
+     "exec_seconds": 3054.1,
      "file": "runs/ethevals/opus-5.5.json"
     }
    },
    "mark": 89.0,
    "cost_usd": null,
+   "duration_s": 18084,
+   "exec_seconds": 3054.1,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "fable-5.1",
@@ -111,15 +135,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 708940,
+     "exec_seconds": 6379.4,
      "file": "runs/ethevals/fable-5.1.json"
     }
    },
    "mark": 88.0,
    "cost_usd": null,
+   "duration_s": 708940,
+   "exec_seconds": 6379.4,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "muse-spark-1.3-contributor",
@@ -131,19 +161,25 @@
     "ethevals": {
      "name": "ETHEVALS",
      "score": 86.0,
-     "cost_usd": 0.2027,
+     "cost_usd": 0.2048,
      "cost_source": "measured:opencode-db",
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 1025,
+     "exec_seconds": 3686.7,
      "file": "runs/ethevals/muse-spark-1.3-contributor.json"
     }
    },
    "mark": 86.0,
-   "cost_usd": 0.2027,
+   "cost_usd": 0.2048,
+   "duration_s": 1025,
+   "exec_seconds": 3686.7,
    "benchmarks_scored": 1,
    "cost_complete": true,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "sonnet-5",
@@ -159,15 +195,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 708659,
+     "exec_seconds": 5550.2,
      "file": "runs/ethevals/sonnet-5.json"
     }
    },
    "mark": 85.0,
    "cost_usd": null,
+   "duration_s": 708659,
+   "exec_seconds": 5550.2,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "sonnet-5.5",
@@ -183,15 +225,53 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 23172,
+     "exec_seconds": 3339.3,
      "file": "runs/ethevals/sonnet-5.5.json"
     }
    },
    "mark": 85.0,
    "cost_usd": null,
+   "duration_s": 23172,
+   "exec_seconds": 3339.3,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
+  },
+  {
+   "config": "deepseek-v4.1-flash@max",
+   "model": "opencode-go/deepseek-v4.1-flash",
+   "harness": "opencode",
+   "skill": null,
+   "variant": "max",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 84.0,
+     "cost_usd": 1.2027,
+     "cost_source": "measured:opencode-db",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": false,
+     "observed_variants": [
+      "max"
+     ],
+     "duration_s": 3400,
+     "exec_seconds": 11487.5,
+     "file": "runs/ethevals/deepseek-v4.1-flash-max.json"
+    }
+   },
+   "mark": 84.0,
+   "cost_usd": 1.2027,
+   "duration_s": 3400,
+   "exec_seconds": 11487.5,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": false
   },
   {
    "config": "muse-spark-1.3-contributor@xhigh",
@@ -207,17 +287,85 @@
      "cost_source": "measured:opencode-db",
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [
       "xhigh"
      ],
+     "duration_s": 1503,
+     "exec_seconds": 5015.5,
      "file": "runs/ethevals/muse-spark-1.3-contributor-xhigh.json"
     }
    },
    "mark": 83.0,
    "cost_usd": 0.2442,
+   "duration_s": 1503,
+   "exec_seconds": 5015.5,
    "benchmarks_scored": 1,
    "cost_complete": true,
-   "stale": false
+   "stale": false,
+   "partial": false
+  },
+  {
+   "config": "mimo-v2.6-flash",
+   "model": "opencode-go/mimo-v2.6-flash",
+   "harness": "opencode",
+   "skill": null,
+   "variant": null,
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 83.0,
+     "cost_usd": 0.6948,
+     "cost_source": "measured:opencode-db",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": false,
+     "observed_variants": [],
+     "duration_s": 6283,
+     "exec_seconds": 23041.8,
+     "file": "runs/ethevals/mimo-v2.6-flash.json"
+    }
+   },
+   "mark": 83.0,
+   "cost_usd": 0.6948,
+   "duration_s": 6283,
+   "exec_seconds": 23041.8,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": false
+  },
+  {
+   "config": "glm-5.3-flash@max",
+   "model": "opencode-go/glm-5.3-flash",
+   "harness": "opencode",
+   "skill": null,
+   "variant": "max",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 79.0,
+     "cost_usd": 2.0304,
+     "cost_source": "measured:opencode-db",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": true,
+     "observed_variants": [
+      "max"
+     ],
+     "duration_s": 1,
+     "exec_seconds": 31150.9,
+     "file": "runs/ethevals/glm-5.3-flash-max.json"
+    }
+   },
+   "mark": 79.0,
+   "cost_usd": 2.0304,
+   "duration_s": 1,
+   "exec_seconds": 31150.9,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": true
   },
   {
    "config": "haiku-4.5+ethskills",
@@ -233,15 +381,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 708501,
+     "exec_seconds": 4384.9,
      "file": "runs/ethevals/haiku-4.5+ethskills.json"
     }
    },
    "mark": 68.0,
    "cost_usd": null,
+   "duration_s": 708501,
+   "exec_seconds": 4384.9,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   },
   {
    "config": "haiku-4.5",
@@ -257,15 +411,21 @@
      "cost_source": null,
      "manifest": "4aa67fc4f695",
      "stale": false,
+     "partial": false,
      "observed_variants": [],
+     "duration_s": 708562,
+     "exec_seconds": 3369.7,
      "file": "runs/ethevals/haiku-4.5.json"
     }
    },
    "mark": 62.0,
    "cost_usd": null,
+   "duration_s": 708562,
+   "exec_seconds": 3369.7,
    "benchmarks_scored": 1,
    "cost_complete": false,
-   "stale": false
+   "stale": false,
+   "partial": false
   }
  ]
 }

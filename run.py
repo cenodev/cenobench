@@ -542,6 +542,9 @@ def main():
     if not a.name: ap.error("--name is required for a run")
     cmd = a.cmd or (EXECUTORS[a.executor](a.model, a.variant) if a.executor and a.model else None)
     if not cmd: ap.error("give --executor and --model, or --cmd")
+    if not a.variant and a.executor in ("opencode", "codex"):
+        print("warning: no --variant given; the provider default reasoning effort will be used "
+              "and is not recorded in the card")
 
     evals = load_evals(a.benchmark, a.track, a.only, None, benchmarks)
     all_evals = load_evals(a.benchmark, None, None, None, benchmarks)

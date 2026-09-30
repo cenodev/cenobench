@@ -32,6 +32,7 @@
   }
  },
  "evals_run": 100,
+ "partial": false,
  "verdicts": {
   "building-01-no-infinite-approvals": true,
   "building-02-approve-flow-states": true,
@@ -154,5 +155,7 @@
  "stale": false,
  "observed_variants": [
   "xhigh"
- ]
+ ],
+ "exec_seconds": 5015.5,
+ "duration_s": 1503
 }

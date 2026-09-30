@@ -32,6 +32,7 @@
   }
  },
  "evals_run": 100,
+ "partial": false,
  "verdicts": {
   "building-01-no-infinite-approvals": true,
   "building-02-approve-flow-states": false,
@@ -137,5 +138,7 @@
  "cost": null,
  "source_file": "/home/ste/Documents/ceno/ethevals/results/haiku-4.5+ethskills.json",
  "stale": false,
- "observed_variants": []
+ "observed_variants": [],
+ "exec_seconds": 4384.9,
+ "duration_s": 708501
 }
