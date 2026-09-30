@@ -172,7 +172,7 @@ function renderCards() {
 }
 
 async function loadRun(path) {
-  try { const r = await fetch(path); return await r.json(); } catch { return null; }
+  try { const r = await fetch(path, { cache: "no-store" }); return await r.json(); } catch { return null; }
 }
 
 async function select(config) {
@@ -216,7 +216,7 @@ async function select(config) {
 }
 
 (async function () {
-  const r = await fetch("index.json");
+  const r = await fetch("index.json", { cache: "no-store" });
   INDEX = await r.json();
   $("#meta").textContent = `${INDEX.configs.length} configs · generated ${INDEX.generated} · ${INDEX.configs.filter(c => c.cost_usd != null).length} with measured cost`;
   renderChart(); renderCards();
