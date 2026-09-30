@@ -8,7 +8,7 @@
  "skill": null,
  "started": "2026-09-30T03:06:02+00:00",
  "manifest": "4aa67fc4f695",
- "score": 79.0,
+ "score": 80.0,
  "tracks": {
   "concepts": {
    "pass": 23,
@@ -26,13 +26,16 @@
    "score": 68.0
   },
   "security": {
-   "pass": 17,
+   "pass": 18,
    "total": 25,
-   "score": 68.0
+   "score": 72.0
   }
  },
- "evals_run": 97,
- "partial": true,
+ "evals_run": 98,
+ "evals_total": 100,
+ "dead": 2,
+ "partial": false,
+ "incomplete": true,
  "verdicts": {
   "building-01-no-infinite-approvals": true,
   "building-02-approve-flow-states": true,
@@ -87,6 +90,7 @@
   "security-01-reentrancy": true,
   "security-02-read-only-reentrancy": true,
   "security-03-cross-function-reentrancy": true,
+  "security-04-vault-inflation": true,
   "security-06-fee-on-transfer-books": true,
   "security-07-oz-v5-approvals": true,
   "security-08-signature-replay": true,
@@ -133,17 +137,17 @@
   "transactions-25-safe-tx-hash": false
  },
  "cost": {
-  "usd": 2.0304,
+  "usd": 2.1124,
   "scope": "executor",
   "source": "measured:opencode-db",
   "tokens": {
-   "input": 3594991,
-   "output": 287790,
-   "reasoning": 729042,
-   "cache_read": 32759168,
+   "input": 3942148,
+   "output": 294563,
+   "reasoning": 751007,
+   "cache_read": 33277440,
    "cache_write": 0
   },
-  "steps": 767,
+  "steps": 788,
   "variants": [
    "max"
   ]
@@ -153,6 +157,6 @@
  "observed_variants": [
   "max"
  ],
- "exec_seconds": 31150.9,
- "duration_s": 1
+ "exec_seconds": 32921.0,
+ "duration_s": 1802
 }

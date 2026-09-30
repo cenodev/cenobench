@@ -1,0 +1,80 @@
+{
+ "benchmark": "ethevals",
+ "benchmark_name": "ETHEVALS",
+ "config": "muse-spark-1.3-contributor@high",
+ "model": "opencode-go/muse-spark-1.3-contributor",
+ "harness": "opencode",
+ "variant": null,
+ "skill": null,
+ "started": "2026-09-30T11:33:50+00:00",
+ "manifest": "4aa67fc4f695",
+ "score": 16.0,
+ "tracks": {
+  "concepts": {
+   "pass": 16,
+   "total": 25,
+   "score": 64.0
+  },
+  "transactions": {
+   "pass": 0,
+   "total": 25,
+   "score": 0.0
+  },
+  "building": {
+   "pass": 0,
+   "total": 25,
+   "score": 0.0
+  },
+  "security": {
+   "pass": 0,
+   "total": 25,
+   "score": 0.0
+  }
+ },
+ "evals_run": 16,
+ "evals_total": 100,
+ "dead": 0,
+ "partial": true,
+ "incomplete": false,
+ "verdicts": {
+  "concepts-01-nothing-is-automatic": true,
+  "concepts-02-walkaway-test": true,
+  "concepts-03-keeper-bounty-math": true,
+  "concepts-04-hyperstructures": true,
+  "concepts-05-fee-switch-fork": true,
+  "concepts-06-sybil-resistance": true,
+  "concepts-07-crops-pillars": true,
+  "concepts-08-verified-is-not-open": true,
+  "concepts-09-eip1559-mechanics": true,
+  "concepts-10-mev-backrun": true,
+  "concepts-11-spot-price-oracle": true,
+  "concepts-12-blockhash-current": true,
+  "concepts-13-eip712-replay": true,
+  "concepts-14-eip7702-delegation": true,
+  "concepts-15-paymaster-deposit": true,
+  "concepts-16-peerdas-eip": true
+ },
+ "cost": {
+  "usd": 0.0104,
+  "scope": "executor",
+  "source": "measured:opencode-db",
+  "tokens": {
+   "input": 82683,
+   "output": 2096,
+   "reasoning": 6908,
+   "cache_read": 168359,
+   "cache_write": 0
+  },
+  "steps": 23,
+  "variants": [
+   "high"
+  ]
+ },
+ "source_file": "/home/ste/Documents/ceno/ethevals/results/muse-spark-1.3-contributor-high.json",
+ "stale": false,
+ "observed_variants": [
+  "high"
+ ],
+ "exec_seconds": 218.5,
+ "duration_s": 61
+}

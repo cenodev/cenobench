@@ -39,6 +39,7 @@
   .chip.bad b { color: var(--warn); }
   .stale { color: var(--warn); border: 1px solid var(--warn); padding: 0 5px; font-size: 10px; margin-left: 6px; }
   .partial { color: #fbbf24; border: 1px solid #fbbf24; padding: 0 5px; font-size: 10px; margin-left: 6px; }
+  .incomplete { color: var(--warn); border: 1px solid var(--warn); padding: 0 5px; font-size: 10px; margin-left: 6px; }
   .none { color: var(--dim); font-size: 12px; }
   .unknown { display: flex; flex-wrap: wrap; gap: 8px; }
   .unknown button { font: 12px var(--mono); background: none; border: 1px solid var(--line); color: var(--dim); padding: 3px 10px; cursor: pointer; }
@@ -167,7 +168,7 @@ function renderChart() {
     const flip = x > W - R - 150 && Math.abs(ly - y) < 6;
     parts.push(`<g class="pt${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
       + `<circle cx="${x}" cy="${y}" r="6"/>`
-      + `<text x="${flip ? x - 10 : x + 10}" y="${ly}" text-anchor="${flip ? "end" : "start"}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : ""} — ${c.mark}</text></g>`);
+      + `<text x="${flip ? x - 10 : x + 10}" y="${ly}" text-anchor="${flip ? "end" : "start"}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : c.incomplete ? " (incomplete)" : ""} — ${c.mark}</text></g>`);
   }
   svg.innerHTML = parts.join("");
   svg.querySelectorAll(".pt").forEach(g => g.addEventListener("click", () => select(g.dataset.config)));
@@ -185,7 +186,7 @@ function renderCards() {
   $("#cards").innerHTML = INDEX.configs.map(c => {
     const chips = Object.entries(c.benchmarks).sort().map(([bid, b]) => chip(bid, b)).join("");
     return `<tr class="config${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
-      + `<td>${esc(c.config)}${c.stale ? '<span class="stale">STALE</span>' : ""}${c.partial ? '<span class="partial">PARTIAL</span>' : ""}<br><span class="sk">${esc(c.harness || "")}${c.skill ? " + skill" : ""}${esc(vtag(c))}</span></td>`
+      + `<td>${esc(c.config)}${c.stale ? '<span class="stale">STALE</span>' : ""}${c.partial ? '<span class="partial">PARTIAL</span>' : ""}${c.incomplete ? `<span class="incomplete">INCOMPLETE ${c.dead}</span>` : ""}<br><span class="sk">${esc(c.harness || "")}${c.skill ? " + skill" : ""}${esc(vtag(c))}</span></td>`
       + `<td><div class="chips">${chips}</div></td>`
       + `<td class="num">${c.mark == null ? "—" : c.mark}</td>`
       + `<td class="num">${usd(c.cost_usd)}</td>`
@@ -225,6 +226,7 @@ async function select(config) {
       <dt>harness</dt><dd>${esc(c.harness || "—")}</dd>
       <dt>skill</dt><dd>${esc(c.skill || "none")}</dd>
       <dt>effort</dt><dd>${esc(effort(c))}</dd>
+      <dt>evals</dt><dd>${c.evals_run}/${c.evals_total}${c.dead ? ` · ${c.dead} dead` : ""}</dd>
       <dt>mark</dt><dd>${c.mark}${c.benchmarks_scored ? ` · mean of ${c.benchmarks_scored} benchmarks` : ""}${c.stale ? ' <span class="stale">STALE — ran an older eval manifest</span>' : ""}</dd>
       <dt>cost</dt><dd>${usd(c.cost_usd)}${c.cost_complete ? " · complete" : " · incomplete"}</dd>
       <dt>wall clock</dt><dd>${dur(c.duration_s)}</dd>

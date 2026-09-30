@@ -128,7 +128,10 @@ def measure_cost(prefix, model, variant=None, t1=None):
 def normalize(doc, source, path):
     tracks = track_scores(doc)
     name = doc.get("name") or os.path.splitext(os.path.basename(path))[0]
-    rows = [r for r in doc.get("rows", []) if not r.get("dead") and not r.get("ungraded")]
+    all_rows = doc.get("rows", [])
+    rows = [r for r in all_rows if not r.get("dead") and not r.get("ungraded")]
+    dead = [r for r in all_rows if r.get("dead") or r.get("ungraded")]
+    total_evals = (doc.get("total") or {}).get("total") or (len(rows) + len(dead))
     rec = {
         "benchmark": source["id"],
         "benchmark_name": source.get("name", source["id"]),
@@ -142,7 +145,10 @@ def normalize(doc, source, path):
         "score": overall(doc),
         "tracks": tracks,
         "evals_run": len(rows),
-        "partial": len(rows) < ((doc.get("total") or {}).get("total") or len(rows)),
+        "evals_total": total_evals,
+        "dead": len(dead),
+        "partial": len(rows) < total_evals and not dead,
+        "incomplete": len(rows) < total_evals and bool(dead),
         "verdicts": {r["id"]: bool(r["pass"]) for r in rows},
         "cost": None,
         "source_file": os.path.relpath(path, ROOT) if path.startswith(ROOT) else path,
@@ -213,6 +219,10 @@ def main():
                 "manifest": rec["manifest"],
                 "stale": rec["stale"],
                 "partial": rec["partial"],
+                "incomplete": rec["incomplete"],
+                "dead": rec["dead"],
+                "evals_run": rec["evals_run"],
+                "evals_total": rec["evals_total"],
                 "observed_variants": rec["observed_variants"],
                 "duration_s": rec["duration_s"],
                 "exec_seconds": rec["exec_seconds"],
@@ -232,6 +242,10 @@ def main():
         c["cost_complete"] = bool(c["benchmarks"]) and len(costs) == len(c["benchmarks"])
         c["stale"] = any(b.get("stale") for b in c["benchmarks"].values())
         c["partial"] = any(b.get("partial") for b in c["benchmarks"].values())
+        c["incomplete"] = any(b.get("incomplete") for b in c["benchmarks"].values())
+        c["dead"] = sum(b.get("dead") or 0 for b in c["benchmarks"].values())
+        c["evals_run"] = sum(b.get("evals_run") or 0 for b in c["benchmarks"].values())
+        c["evals_total"] = sum(b.get("evals_total") or 0 for b in c["benchmarks"].values())
         out.append(c)
     out.sort(key=lambda c: (-(c["mark"] or 0), c["cost_usd"] if c["cost_usd"] is not None else 1e18))
     index = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "configs": out}

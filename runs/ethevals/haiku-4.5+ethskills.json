@@ -32,7 +32,10 @@
   }
  },
  "evals_run": 100,
+ "evals_total": 100,
+ "dead": 0,
  "partial": false,
+ "incomplete": false,
  "verdicts": {
   "building-01-no-infinite-approvals": true,
   "building-02-approve-flow-states": false,
