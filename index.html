@@ -112,7 +112,13 @@ function effort(c) {
   return "effort unrecorded";
 }
 
-function vtag(c) { const t = effort(c); return t.startsWith("@") ? " " + t : ""; }
+function vtag(c) {
+  const t = effort(c);
+  if (!t.startsWith("@")) return "";
+  const tag = t.slice(1).toLowerCase();
+  if (c.config.toLowerCase().endsWith("@" + tag)) return "";
+  return " " + t;
+}
 
 function renderChart() {
   const svg = $("#chart");
