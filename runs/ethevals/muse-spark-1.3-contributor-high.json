@@ -8,7 +8,7 @@
  "skill": null,
  "started": "2026-09-30T11:33:50+00:00",
  "manifest": "4aa67fc4f695",
- "score": 52.0,
+ "score": 86.0,
  "tracks": {
   "concepts": {
    "pass": 25,
@@ -21,26 +21,47 @@
    "score": 96.0
   },
   "building": {
-   "pass": 3,
+   "pass": 14,
    "total": 25,
-   "score": 12.0
+   "score": 56.0
   },
   "security": {
-   "pass": 0,
+   "pass": 23,
    "total": 25,
-   "score": 0.0
+   "score": 92.0
   }
  },
- "evals_run": 54,
+ "evals_run": 100,
  "evals_total": 100,
  "dead": 0,
- "partial": true,
+ "partial": false,
  "incomplete": false,
  "verdicts": {
   "building-01-no-infinite-approvals": true,
   "building-02-approve-flow-states": true,
   "building-03-usdc-decimals": true,
+  "building-04-se2-staking-dapp": false,
+  "building-05-button-lifecycle": false,
   "building-06-ens-input": false,
+  "building-07-double-fire": true,
+  "building-08-rpc-config": false,
+  "building-09-mobile-chain-switch": false,
+  "building-10-index-events": true,
+  "building-11-forty-balances": true,
+  "building-12-pick-a-chain": false,
+  "building-13-l2-real-cost": false,
+  "building-14-deployer-key-hygiene": false,
+  "building-15-agent-custody": false,
+  "building-16-one-click-from-eoa": true,
+  "building-17-x402-paid-api": true,
+  "building-18-create2-address-myth": true,
+  "building-19-deploy-verify-ship": false,
+  "building-20-existing-eoa-smart-account": true,
+  "building-21-5792-fallback": true,
+  "building-22-sign-transaction": true,
+  "building-23-compact-signature": true,
+  "building-24-4337-2d-nonce": true,
+  "building-25-hash-message-string": false,
   "concepts-01-nothing-is-automatic": true,
   "concepts-02-walkaway-test": true,
   "concepts-03-keeper-bounty-math": true,
@@ -66,6 +87,31 @@
   "concepts-23-7702-bad-tuple": true,
   "concepts-24-4337-banned-opcodes": true,
   "concepts-25-1271-replay-safe": true,
+  "security-01-reentrancy": true,
+  "security-02-read-only-reentrancy": true,
+  "security-03-cross-function-reentrancy": true,
+  "security-04-vault-inflation": true,
+  "security-05-spot-price-oracle": true,
+  "security-06-fee-on-transfer-books": true,
+  "security-07-oz-v5-approvals": true,
+  "security-08-signature-replay": true,
+  "security-09-uups-upgrade": true,
+  "security-10-checks-effects-interactions": true,
+  "security-11-missing-access-control": true,
+  "security-12-storage-layout": true,
+  "security-13-authorize-upgrade": true,
+  "security-14-sandwich-slippage": true,
+  "security-15-lending-postmortem-1": true,
+  "security-16-lending-postmortem-2": true,
+  "security-17-lending-postmortem-3": true,
+  "security-18-decimal-scale-mismatch": true,
+  "security-19-permissionless-listing": false,
+  "security-20-borrowing-market": true,
+  "security-21-malicious-permit": false,
+  "security-22-permit2-batch": true,
+  "security-23-decimal-verifying-contract": true,
+  "security-24-siwe-domain": true,
+  "security-25-safe-delegatecall": true,
   "transactions-01-selector-string": true,
   "transactions-02-abi-encode-static": true,
   "transactions-03-decode-calldata": true,
@@ -93,27 +139,27 @@
   "transactions-25-safe-tx-hash": true
  },
  "cost": {
-  "usd": 0.061,
+  "usd": 0.2277,
   "scope": "executor",
   "source": "measured:opencode-db",
   "tokens": {
-   "input": 440408,
-   "output": 25585,
-   "reasoning": 45240,
-   "cache_read": 1392708,
+   "input": 1484617,
+   "output": 145643,
+   "reasoning": 145091,
+   "cache_read": 10547128,
    "cache_write": 0
   },
-  "steps": 132,
+  "steps": 440,
   "variants": [
    "high"
   ],
-  "wall_s": 342
+  "wall_s": 1592
  },
  "source_file": "/home/ste/Documents/ceno/ethevals/results/muse-spark-1.3-contributor-high.json",
  "stale": false,
  "observed_variants": [
   "high"
  ],
- "exec_seconds": 1177.0,
- "duration_s": 342
+ "exec_seconds": 5927.9,
+ "duration_s": 1592
 }
