@@ -150,11 +150,12 @@
    "cache_write": 0
   },
   "steps": 657,
-  "variants": []
+  "variants": [],
+  "wall_s": 6251
  },
  "source_file": "/home/ste/Documents/ceno/ethevals/results/mimo-v2.6-flash.json",
  "stale": false,
  "observed_variants": [],
  "exec_seconds": 23041.8,
- "duration_s": 6283
+ "duration_s": 6251
 }

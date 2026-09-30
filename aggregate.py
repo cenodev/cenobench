@@ -47,12 +47,6 @@ def overall(doc):
         score = round(100 * t["pass"] / t["total"], 1) if t.get("total") else 0.0
     return round(float(score), 1)
 
-def parse_iso(s):
-    try:
-        return datetime.fromisoformat(s).timestamp()
-    except Exception:
-        return None
-
 def current_manifest(source):
     spec = source.get("current_manifest")
     if not spec:
@@ -87,6 +81,7 @@ def measure_cost(prefix, model, variant=None, t1=None):
         return None
     usd, hits = 0.0, 0
     variants = set()
+    times = []
     tokens = {"input": 0, "output": 0, "reasoning": 0, "cache_read": 0, "cache_write": 0}
     for pdata, mdata in rows:
         try:
@@ -109,6 +104,7 @@ def measure_cost(prefix, model, variant=None, t1=None):
         t = t / 1000.0
         if t1 and t > t1 + 60:
             continue
+        times.append(t)
         if m.get("variant"):
             variants.add(m["variant"])
         usd += float(p.get("cost") or 0)
@@ -122,8 +118,15 @@ def measure_cost(prefix, model, variant=None, t1=None):
         hits += 1
     if not hits:
         return None
+    times.sort()
+    wall = 0.0
+    for prev, cur in zip(times, times[1:]):
+        gap = cur - prev
+        if gap <= 900:
+            wall += gap
     return {"usd": round(usd, 4), "scope": "executor", "source": "measured:opencode-db",
-            "tokens": tokens, "steps": hits, "variants": sorted(variants)}
+            "tokens": tokens, "steps": hits, "variants": sorted(variants),
+            "wall_s": round(wall) if len(times) > 1 else 0}
 
 def normalize(doc, source, path):
     tracks = track_scores(doc)
@@ -167,14 +170,7 @@ def normalize(doc, source, path):
     rec["stale"] = bool(cur and rec["manifest"] and rec["manifest"] != cur)
     rec["observed_variants"] = (rec["cost"] or {}).get("variants", [])
     rec["exec_seconds"] = round(sum(r.get("seconds") or 0 for r in rows), 1)
-    rec["duration_s"] = None
-    t0 = parse_iso(doc.get("started"))
-    try:
-        t1 = os.path.getmtime(path)
-    except OSError:
-        t1 = None
-    if t0 and t1 and t1 > t0:
-        rec["duration_s"] = round(t1 - t0)
+    rec["duration_s"] = (rec["cost"] or {}).get("wall_s")
     return rec
 
 def slug(name):

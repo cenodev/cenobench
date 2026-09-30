@@ -143,5 +143,5 @@
  "stale": false,
  "observed_variants": [],
  "exec_seconds": 5400.1,
- "duration_s": 708940
+ "duration_s": null
 }

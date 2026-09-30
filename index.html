@@ -229,7 +229,7 @@ async function select(config) {
       <dt>evals</dt><dd>${c.evals_run}/${c.evals_total}${c.dead ? ` · ${c.dead} dead` : ""}</dd>
       <dt>mark</dt><dd>${c.mark}${c.benchmarks_scored ? ` · mean of ${c.benchmarks_scored} benchmarks` : ""}${c.stale ? ' <span class="stale">STALE — ran an older eval manifest</span>' : ""}</dd>
       <dt>cost</dt><dd>${usd(c.cost_usd)}${c.cost_complete ? " · complete" : " · incomplete"}</dd>
-      <dt>wall clock</dt><dd>${dur(c.duration_s)}</dd>
+      <dt>run time</dt><dd>${dur(c.duration_s)} (executor sessions)</dd>
       <dt>model time</dt><dd>${dur(c.exec_seconds)} summed over evals</dd>
       <dt>runs</dt><dd>${cost}</dd>
     </dl>

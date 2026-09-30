@@ -150,7 +150,8 @@
   "steps": 788,
   "variants": [
    "max"
-  ]
+  ],
+  "wall_s": 11433
  },
  "source_file": "/home/ste/Documents/ceno/ethevals/results/glm-5.3-flash-max.json",
  "stale": false,
@@ -158,5 +159,5 @@
   "max"
  ],
  "exec_seconds": 32921.0,
- "duration_s": 1802
+ "duration_s": 11433
 }

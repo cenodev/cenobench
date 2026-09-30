@@ -152,7 +152,8 @@
   "steps": 465,
   "variants": [
    "xhigh"
-  ]
+  ],
+  "wall_s": 1486
  },
  "source_file": "/home/ste/Documents/ceno/ethevals/results/muse-spark-1.3-contributor-xhigh.json",
  "stale": false,
@@ -160,5 +161,5 @@
   "xhigh"
  ],
  "exec_seconds": 5015.5,
- "duration_s": 1503
+ "duration_s": 1486
 }

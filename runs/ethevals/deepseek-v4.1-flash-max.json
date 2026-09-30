@@ -152,7 +152,8 @@
   "steps": 645,
   "variants": [
    "max"
-  ]
+  ],
+  "wall_s": 3381
  },
  "source_file": "/home/ste/Documents/ceno/ethevals/results/deepseek-v4.1-flash-max.json",
  "stale": false,
@@ -160,5 +161,5 @@
   "max"
  ],
  "exec_seconds": 11487.5,
- "duration_s": 3400
+ "duration_s": 3381
 }

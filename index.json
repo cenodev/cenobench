@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-30T11:34:53+00:00",
+ "generated": "2026-09-30T11:39:42+00:00",
  "configs": [
   {
    "config": "fable-5.1+ethskills",
@@ -21,14 +21,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 708837,
+     "duration_s": null,
      "exec_seconds": 7102.0,
      "file": "runs/ethevals/fable-5.1+ethskills.json"
     }
    },
    "mark": 93.0,
    "cost_usd": null,
-   "duration_s": 708837,
+   "duration_s": null,
    "exec_seconds": 7102.0,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -59,14 +59,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 708940,
+     "duration_s": null,
      "exec_seconds": 5400.1,
      "file": "runs/ethevals/gpt-6-astra.json"
     }
    },
    "mark": 93.0,
    "cost_usd": null,
-   "duration_s": 708940,
+   "duration_s": null,
    "exec_seconds": 5400.1,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -97,14 +97,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 708736,
+     "duration_s": null,
      "exec_seconds": 9072.9,
      "file": "runs/ethevals/opus-5.json"
     }
    },
    "mark": 89.0,
    "cost_usd": null,
-   "duration_s": 708736,
+   "duration_s": null,
    "exec_seconds": 9072.9,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -135,14 +135,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 18084,
+     "duration_s": null,
      "exec_seconds": 3054.1,
      "file": "runs/ethevals/opus-5.5.json"
     }
    },
    "mark": 89.0,
    "cost_usd": null,
-   "duration_s": 18084,
+   "duration_s": null,
    "exec_seconds": 3054.1,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -173,14 +173,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 708940,
+     "duration_s": null,
      "exec_seconds": 6379.4,
      "file": "runs/ethevals/fable-5.1.json"
     }
    },
    "mark": 88.0,
    "cost_usd": null,
-   "duration_s": 708940,
+   "duration_s": null,
    "exec_seconds": 6379.4,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -211,14 +211,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 1025,
+     "duration_s": 1078,
      "exec_seconds": 3686.7,
      "file": "runs/ethevals/muse-spark-1.3-contributor.json"
     }
    },
    "mark": 86.0,
    "cost_usd": 0.2048,
-   "duration_s": 1025,
+   "duration_s": 1078,
    "exec_seconds": 3686.7,
    "benchmarks_scored": 1,
    "cost_complete": true,
@@ -249,14 +249,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 708659,
+     "duration_s": null,
      "exec_seconds": 5550.2,
      "file": "runs/ethevals/sonnet-5.json"
     }
    },
    "mark": 85.0,
    "cost_usd": null,
-   "duration_s": 708659,
+   "duration_s": null,
    "exec_seconds": 5550.2,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -287,14 +287,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 23172,
+     "duration_s": null,
      "exec_seconds": 3339.3,
      "file": "runs/ethevals/sonnet-5.5.json"
     }
    },
    "mark": 85.0,
    "cost_usd": null,
-   "duration_s": 23172,
+   "duration_s": null,
    "exec_seconds": 3339.3,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -327,14 +327,14 @@
      "observed_variants": [
       "max"
      ],
-     "duration_s": 3400,
+     "duration_s": 3381,
      "exec_seconds": 11487.5,
      "file": "runs/ethevals/deepseek-v4.1-flash-max.json"
     }
    },
    "mark": 84.0,
    "cost_usd": 1.2027,
-   "duration_s": 3400,
+   "duration_s": 3381,
    "exec_seconds": 11487.5,
    "benchmarks_scored": 1,
    "cost_complete": true,
@@ -367,14 +367,14 @@
      "observed_variants": [
       "xhigh"
      ],
-     "duration_s": 1503,
+     "duration_s": 1486,
      "exec_seconds": 5015.5,
      "file": "runs/ethevals/muse-spark-1.3-contributor-xhigh.json"
     }
    },
    "mark": 83.0,
    "cost_usd": 0.2442,
-   "duration_s": 1503,
+   "duration_s": 1486,
    "exec_seconds": 5015.5,
    "benchmarks_scored": 1,
    "cost_complete": true,
@@ -405,14 +405,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 6283,
+     "duration_s": 6251,
      "exec_seconds": 23041.8,
      "file": "runs/ethevals/mimo-v2.6-flash.json"
     }
    },
    "mark": 83.0,
    "cost_usd": 0.6948,
-   "duration_s": 6283,
+   "duration_s": 6251,
    "exec_seconds": 23041.8,
    "benchmarks_scored": 1,
    "cost_complete": true,
@@ -445,14 +445,14 @@
      "observed_variants": [
       "max"
      ],
-     "duration_s": 1802,
+     "duration_s": 11433,
      "exec_seconds": 32921.0,
      "file": "runs/ethevals/glm-5.3-flash-max.json"
     }
    },
    "mark": 80.0,
    "cost_usd": 2.1124,
-   "duration_s": 1802,
+   "duration_s": 11433,
    "exec_seconds": 32921.0,
    "benchmarks_scored": 1,
    "cost_complete": true,
@@ -483,14 +483,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 708501,
+     "duration_s": null,
      "exec_seconds": 4384.9,
      "file": "runs/ethevals/haiku-4.5+ethskills.json"
     }
    },
    "mark": 68.0,
    "cost_usd": null,
-   "duration_s": 708501,
+   "duration_s": null,
    "exec_seconds": 4384.9,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -521,14 +521,14 @@
      "evals_run": 100,
      "evals_total": 100,
      "observed_variants": [],
-     "duration_s": 708562,
+     "duration_s": null,
      "exec_seconds": 3369.7,
      "file": "runs/ethevals/haiku-4.5.json"
     }
    },
    "mark": 62.0,
    "cost_usd": null,
-   "duration_s": 708562,
+   "duration_s": null,
    "exec_seconds": 3369.7,
    "benchmarks_scored": 1,
    "cost_complete": false,
@@ -548,35 +548,35 @@
    "benchmarks": {
     "ethevals": {
      "name": "ETHEVALS",
-     "score": 18.0,
-     "cost_usd": 0.0229,
+     "score": 53.0,
+     "cost_usd": 0.0915,
      "cost_source": "measured:opencode-db",
      "manifest": "4aa67fc4f695",
      "stale": false,
      "partial": true,
      "incomplete": false,
      "dead": 0,
-     "evals_run": 18,
+     "evals_run": 53,
      "evals_total": 100,
      "observed_variants": [
       "medium"
      ],
-     "duration_s": 52,
-     "exec_seconds": 186.6,
+     "duration_s": 333,
+     "exec_seconds": 1207.8,
      "file": "runs/ethevals/muse-spark-1.3-contributor-medium.json"
     }
    },
-   "mark": 18.0,
-   "cost_usd": 0.0229,
-   "duration_s": 52,
-   "exec_seconds": 186.6,
+   "mark": 53.0,
+   "cost_usd": 0.0915,
+   "duration_s": 333,
+   "exec_seconds": 1207.8,
    "benchmarks_scored": 1,
    "cost_complete": true,
    "stale": false,
    "partial": true,
    "incomplete": false,
    "dead": 0,
-   "evals_run": 18,
+   "evals_run": 53,
    "evals_total": 100
   },
   {
@@ -588,35 +588,35 @@
    "benchmarks": {
     "ethevals": {
      "name": "ETHEVALS",
-     "score": 16.0,
-     "cost_usd": 0.0104,
+     "score": 52.0,
+     "cost_usd": 0.061,
      "cost_source": "measured:opencode-db",
      "manifest": "4aa67fc4f695",
      "stale": false,
      "partial": true,
      "incomplete": false,
      "dead": 0,
-     "evals_run": 16,
+     "evals_run": 54,
      "evals_total": 100,
      "observed_variants": [
       "high"
      ],
-     "duration_s": 61,
-     "exec_seconds": 218.5,
+     "duration_s": 342,
+     "exec_seconds": 1177.0,
      "file": "runs/ethevals/muse-spark-1.3-contributor-high.json"
     }
    },
-   "mark": 16.0,
-   "cost_usd": 0.0104,
-   "duration_s": 61,
-   "exec_seconds": 218.5,
+   "mark": 52.0,
+   "cost_usd": 0.061,
+   "duration_s": 342,
+   "exec_seconds": 1177.0,
    "benchmarks_scored": 1,
    "cost_complete": true,
    "stale": false,
    "partial": true,
    "incomplete": false,
    "dead": 0,
-   "evals_run": 16,
+   "evals_run": 54,
    "evals_total": 100
   }
  ]
