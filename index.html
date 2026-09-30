@@ -24,8 +24,11 @@
   text { font: 10px var(--mono); fill: var(--dim); }
   .pt { cursor: pointer; }
   .pt circle { fill: var(--accent); }
-  .pt:hover circle, .pt.sel circle { stroke: #fff; stroke-width: 2; }
+  .pt:hover circle, .pt.sel circle, .pt.hov circle { stroke: #fff; stroke-width: 2; }
   .pt text { fill: var(--ink); }
+  #cross { pointer-events: none; }
+  #cross line { stroke: #777; stroke-dasharray: 3 3; }
+  #cross text { fill: var(--ink); }
   table { width: 100%; border-collapse: collapse; }
   th, td { text-align: left; padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: top; }
   th { color: var(--dim); font-weight: normal; font-size: 11px; letter-spacing: .08em; }
@@ -90,6 +93,8 @@
 <script>
 const $ = (s) => document.querySelector(s);
 let INDEX = null, SELECTED = null;
+const PALETTE = ["#60a5fa", "#f472b6", "#fbbf24", "#34d399", "#a78bfa", "#fb923c", "#22d3ee", "#a3e635"];
+const EFFORT_ORDER = ["minimal", "low", "default", "medium", "high", "xhigh", "max"];
 
 function esc(s) { const d = document.createElement("i"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
 function usd(v) { return v == null ? "—" : "$" + (v < 0.1 ? v.toFixed(4) : v.toFixed(3)); }
@@ -125,7 +130,7 @@ function renderChart() {
   const svg = $("#chart");
   const measured = INDEX.configs.filter(c => c.cost_usd != null && c.mark != null);
   const unknown = INDEX.configs.filter(c => c.cost_usd == null && c.mark != null);
-  const W = 1000, H = 380, L = 64, R = 300, T = 28, B = 44;
+  const W = 1000, H = 380, L = 64, R = 80, T = 28, B = 44;
   let x0, x1;
   if (measured.length === 0) { x0 = 0.01; x1 = 1; }
   else if (measured.length === 1) { x0 = measured[0].cost_usd * 0.4; x1 = measured[0].cost_usd * 2.5; }
@@ -158,22 +163,64 @@ function renderChart() {
     parts.push(`<text x="${x}" y="${H - B + 20}" text-anchor="middle">${usd(t)}</text>`);
   }
   parts.push(`<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle">measured executor cost (USD, log) — cheaper to the right</text>`);
-  const placed = [];
+  const base = (c) => c.config.replace(/@.*$/, "");
+  const groups = {};
+  for (const c of measured) (groups[base(c)] ||= []).push(c);
+  const bases = Object.keys(groups).sort();
+  const color = new Map(bases.map((b, i) => [b, PALETTE[i % PALETTE.length]]));
+  const rank = (c) => { const i = EFFORT_ORDER.indexOf(c.variant || "default"); return i < 0 ? 99 : i; };
+  for (const b of bases) {
+    const arr = groups[b].slice().sort((p, q) => rank(p) - rank(q));
+    if (arr.length < 2) continue;
+    parts.push(`<polyline points="${arr.map(c => `${px(c.cost_usd)},${py(c.mark)}`).join(" ")}" fill="none" stroke="${color.get(b)}" stroke-opacity=".6" stroke-width="1.5"/>`);
+  }
+  const placed = [], pts = [];
   for (const c of measured) {
     const x = px(c.cost_usd), y = py(c.mark);
     let ly = y + 3;
-    while (placed.some(p => Math.abs(p.x - x) < 170 && Math.abs(p.y - ly) < 12)) ly += 13;
+    while (placed.some(p => Math.abs(p.x - x) < 90 && Math.abs(p.y - ly) < 12)) ly += 13;
     if (ly > H - B + 6) ly = y - 8;
     placed.push({ x, y: ly });
-    const flip = x > W - R - 150 && Math.abs(ly - y) < 6;
+    const flip = x > W - R - 50 && Math.abs(ly - y) < 6;
+    const col = color.get(base(c));
+    pts.push({ c, x, y });
     parts.push(`<g class="pt${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
-      + `<circle cx="${x}" cy="${y}" r="6"/>`
-      + `<text x="${flip ? x - 10 : x + 10}" y="${ly}" text-anchor="${flip ? "end" : "start"}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : c.incomplete ? " (incomplete)" : ""} — ${c.mark}</text></g>`);
+      + `<circle cx="${x}" cy="${y}" r="6" style="fill:${col}"/>`
+      + `<text x="${flip ? x - 10 : x + 10}" y="${ly}" text-anchor="${flip ? "end" : "start"}" style="fill:${col}">${esc((c.variant || "default") + (c.partial || c.incomplete ? "*" : ""))}</text></g>`);
   }
+  const namePlaced = [];
+  for (const b of bases) {
+    const g = groups[b];
+    const cx = Math.round(g.reduce((s, c) => s + px(c.cost_usd), 0) / g.length);
+    let cy = Math.round(g.reduce((s, c) => s + py(c.mark), 0) / g.length - 18);
+    while (namePlaced.some(p => Math.abs(p.x - cx) < 210 && Math.abs(p.y - cy) < 13)
+        || placed.some(p => Math.abs(p.x - cx) < 170 && Math.abs(p.y - cy) < 12)) cy -= 13;
+    if (cy < T + 8) cy = Math.round(Math.max(...g.map(c => py(c.mark))) + 18);
+    namePlaced.push({ x: cx, y: cy });
+    parts.push(`<text x="${cx}" y="${cy}" text-anchor="middle" font-weight="bold" style="fill:${color.get(b)}">${esc(b)}</text>`);
+  }
+  parts.push('<g id="cross"></g>');
   svg.innerHTML = parts.join("");
-  svg.querySelectorAll(".pt").forEach(g => g.addEventListener("click", () => select(g.dataset.config)));
+  const cross = svg.querySelector("#cross");
+  const els = svg.querySelectorAll(".pt");
+  const showCross = (p) => {
+    cross.innerHTML = `<line x1="${p.x}" y1="${T}" x2="${p.x}" y2="${H - B}"/>`
+      + `<line x1="${L}" y1="${p.y}" x2="${W - R}" y2="${p.y}"/>`
+      + `<text x="${p.x}" y="${H - B + 16}" text-anchor="middle">${usd(p.c.cost_usd)}</text>`
+      + `<text x="${L + 4}" y="${p.y - 5}">${p.c.mark}</text>`;
+  };
+  svg.onmousemove = (e) => {
+    const r = svg.getBoundingClientRect();
+    const sx = (e.clientX - r.left) * (W / r.width), sy = (e.clientY - r.top) * (H / r.height);
+    let best = null, bd = 1e9;
+    for (const p of pts) { const d = Math.hypot(p.x - sx, p.y - sy); if (d < bd) { bd = d; best = p; } }
+    if (best && bd < 50) showCross(best); else { best = null; cross.innerHTML = ""; }
+    els.forEach(g => g.classList.toggle("hov", best !== null && g.dataset.config === best.c.config));
+  };
+  svg.onmouseleave = () => { cross.innerHTML = ""; els.forEach(g => g.classList.remove("hov")); };
+  els.forEach(g => g.addEventListener("click", () => select(g.dataset.config)));
   $("#chart-note").textContent = measured.length
-    ? `${measured.length} config${measured.length === 1 ? "" : "s"} with measured cost. Cost = executor only, judge excluded.`
+    ? `${measured.length} config${measured.length === 1 ? "" : "s"} with measured cost · one line per model, least → most effort · hover for axis values · * partial or incomplete · cost = executor only, judge excluded.`
     : "No measured cost yet — run a benchmark with the opencode executor.";
   $("#unknown").innerHTML = unknown.length
     ? `<p class="none" style="margin:14px 0 6px">Reference cards (cost not measured — run on other machines/harnesses):</p>`

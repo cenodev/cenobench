@@ -9,6 +9,8 @@
 
 Cost is measured from opencode's SQLite DB, which records per-step `cost` and `tokens`
 alongside the session's working directory. Judge sessions (cwd .../…-judge) are excluded.
+Codex harness runs are priced from `~/.codex/sessions` rollout logs: per-turn token usage in
+`token_usage_record` events, attributed by workspace cwd + model + reasoning effort.
 Runs from harnesses that do not report usage have `cost_usd: null` and are plotted as
 cost-unknown rather than zero.
 """
@@ -20,6 +22,13 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 SOURCES_DIR = os.path.join(ROOT, "sources")
 RUNS_DIR = os.path.join(ROOT, "runs")
 OPENCODE_DB = os.path.expanduser("~/.local/share/opencode/opencode.db")
+CODEX_SESSIONS = os.path.expanduser("~/.codex/sessions")
+CODEX_PRICES = {  # USD per 1M tokens, matching opencode-go/model metadata for the same models
+    "gpt-6-luna": {
+        "input": 0.10, "output": 0.50, "cache_read": 0.01, "cache_write": 0.125,
+        "tier": {"size": 272000, "input": 0.20, "output": 0.75, "cache_read": 0.02, "cache_write": 0.25},
+    },
+}
 
 def load_sources():
     out = []
@@ -128,6 +137,106 @@ def measure_cost(prefix, model, variant=None, t1=None):
             "tokens": tokens, "steps": hits, "variants": sorted(variants),
             "wall_s": round(wall) if len(times) > 1 else 0}
 
+def _epoch(ts):
+    try:
+        return datetime.fromisoformat(str(ts).replace("Z", "+00:00")).timestamp()
+    except Exception:
+        return None
+
+_CODEX_CACHE = None
+def _codex_sessions():
+    """Parse codex rollout logs once: cwd, per-turn (model, effort, time), token usage."""
+    global _CODEX_CACHE
+    if _CODEX_CACHE is not None:
+        return _CODEX_CACHE
+    out = []
+    for path in glob.glob(os.path.join(CODEX_SESSIONS, "*", "*", "*", "rollout-*.jsonl")):
+        meta, turns, recs = None, {}, []
+        try:
+            with open(path, errors="replace") as fh:
+                for line in fh:
+                    if not ('"turn_context"' in line or '"session_meta"' in line or '"token_usage_record"' in line):
+                        continue
+                    try:
+                        d = json.loads(line)
+                    except Exception:
+                        continue
+                    t = d.get("type")
+                    p = d.get("payload") or {}
+                    if t == "session_meta":
+                        meta = p
+                    elif t == "turn_context":
+                        turns[p.get("turn_id")] = (p.get("model"), p.get("effort"),
+                                                   _epoch(d.get("timestamp") or p.get("timestamp")))
+                    elif t == "token_usage_record":
+                        recs.append((p, _epoch(d.get("timestamp") or p.get("timestamp"))))
+        except OSError:
+            continue
+        if meta and meta.get("cwd"):
+            out.append({"cwd": meta["cwd"], "turns": turns, "recs": recs})
+    _CODEX_CACHE = out
+    return out
+
+def measure_codex_cost(prefixes, model, effort=None, t1=None):
+    """Executor-only cost/time from codex rollout logs: sessions under any candidate
+    workspace prefix, for `model` and reasoning `effort`, created no later than t1.
+    The first candidate prefix with matches wins, so per-run TMPDIRs stay isolated."""
+    model_id = (model or "").split("/")[-1]
+    price = CODEX_PRICES.get(model_id)
+    if not price:
+        return None
+    for prefix in prefixes:
+        usd, steps, times, efforts = 0.0, 0, [], set()
+        tokens = {"input": 0, "output": 0, "reasoning": 0, "cache_read": 0, "cache_write": 0}
+        for s in _codex_sessions():
+            cwd = s["cwd"]
+            if not (cwd == prefix or cwd.startswith(prefix.rstrip("/") + "/")):
+                continue
+            for p, ts in s["recs"]:
+                tc = s["turns"].get(p.get("turn_id"))
+                if not tc:
+                    continue
+                m, e, t0 = tc
+                if m != model_id or (effort and (e or None) != effort):
+                    continue
+                if t1 and ts and ts > t1 + 60:
+                    continue
+                u = p.get("turn_token_usage") or p.get("usage") or {}
+                inp = u.get("input_tokens", 0)
+                cached = u.get("cached_input_tokens", 0)
+                cw = u.get("cache_write_input_tokens", 0)
+                out = u.get("output_tokens", 0)
+                tier = price.get("tier")
+                if tier and inp > tier["size"]:
+                    p_in, p_out, p_cr, p_cw = tier["input"], tier["output"], tier["cache_read"], tier["cache_write"]
+                else:
+                    p_in, p_out, p_cr, p_cw = price["input"], price["output"], price["cache_read"], price["cache_write"]
+                usd += (max(inp - cached - cw, 0) * p_in + cached * p_cr + cw * p_cw + out * p_out) / 1e6
+                tokens["input"] += inp
+                tokens["output"] += out
+                tokens["reasoning"] += u.get("reasoning_output_tokens", 0)
+                tokens["cache_read"] += cached
+                tokens["cache_write"] += cw
+                if e:
+                    efforts.add(e)
+                if ts:
+                    times.append(ts)
+                if t0:
+                    times.append(t0)
+                steps += 1
+        if not steps:
+            continue
+        times.sort()
+        wall = 0.0
+        for prev, cur in zip(times, times[1:]):
+            gap = cur - prev
+            if gap <= 900:
+                wall += gap
+        return {"usd": round(usd, 4), "scope": "executor", "source": "measured:codex-sessions",
+                "tokens": tokens, "steps": steps, "variants": sorted(efforts),
+                "wall_s": round(wall) if len(times) > 1 else 0}
+    return None
+
 def normalize(doc, source, path):
     tracks = track_scores(doc)
     name = doc.get("name") or os.path.splitext(os.path.basename(path))[0]
@@ -165,7 +274,12 @@ def normalize(doc, source, path):
             t1 = os.path.getmtime(path)
         except OSError:
             t1 = None
-        rec["cost"] = measure_cost(prefix, rec["model"], hint, t1)
+        cmd = doc.get("executor_cmd") or ""
+        if (rec["harness"] or "").lower() == "codex" or "codex" in cmd:
+            cands = [prefix + name, prefix + name.replace("@", "-"), prefix]
+            rec["cost"] = measure_codex_cost(cands, rec["model"], hint, t1)
+        else:
+            rec["cost"] = measure_cost(prefix, rec["model"], hint, t1)
     cur = source.get("_current_manifest")
     rec["stale"] = bool(cur and rec["manifest"] and rec["manifest"] != cur)
     rec["observed_variants"] = (rec["cost"] or {}).get("variants", [])
