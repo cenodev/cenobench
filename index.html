@@ -130,7 +130,7 @@ function renderChart() {
   else if (measured.length === 1) { x0 = measured[0].cost_usd * 0.4; x1 = measured[0].cost_usd * 2.5; }
   else { x0 = Math.min(...measured.map(c => c.cost_usd)) * 0.7; x1 = Math.max(...measured.map(c => c.cost_usd)) * 1.4; }
   const lx = (v) => Math.log10(Math.max(v, 1e-9));
-  const px = (v) => L + (lx(v) - lx(x0)) / (lx(x1) - lx(x0)) * (W - L - R);
+  const px = (v) => (W - R) - ((lx(v) - lx(x0)) / (lx(x1) - lx(x0))) * (W - L - R);
   let y0 = 0, y1 = 100;
   if (measured.length) {
     const marks = measured.map(c => c.mark);
@@ -156,7 +156,7 @@ function renderChart() {
     parts.push(`<line x1="${x}" y1="${py(y0)}" x2="${x}" y2="${py(y0) + 5}" stroke="#333"/>`);
     parts.push(`<text x="${x}" y="${H - B + 20}" text-anchor="middle">${usd(t)}</text>`);
   }
-  parts.push(`<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle">measured executor cost (USD, log)</text>`);
+  parts.push(`<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle">measured executor cost (USD, log) — cheaper to the right</text>`);
   const placed = [];
   for (const c of measured) {
     const x = px(c.cost_usd), y = py(c.mark);
@@ -164,9 +164,10 @@ function renderChart() {
     while (placed.some(p => Math.abs(p.x - x) < 170 && Math.abs(p.y - ly) < 12)) ly += 13;
     if (ly > H - B + 6) ly = y - 8;
     placed.push({ x, y: ly });
+    const flip = x > W - R - 150 && Math.abs(ly - y) < 6;
     parts.push(`<g class="pt${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
       + `<circle cx="${x}" cy="${y}" r="6"/>`
-      + `<text x="${x + 10}" y="${ly}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : ""} — ${c.mark}</text></g>`);
+      + `<text x="${flip ? x - 10 : x + 10}" y="${ly}" text-anchor="${flip ? "end" : "start"}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : ""} — ${c.mark}</text></g>`);
   }
   svg.innerHTML = parts.join("");
   svg.querySelectorAll(".pt").forEach(g => g.addEventListener("click", () => select(g.dataset.config)));
