@@ -118,33 +118,49 @@ function renderChart() {
   const svg = $("#chart");
   const measured = INDEX.configs.filter(c => c.cost_usd != null && c.mark != null);
   const unknown = INDEX.configs.filter(c => c.cost_usd == null && c.mark != null);
-  const W = 1000, H = 380, L = 64, R = 260, T = 24, B = 44;
+  const W = 1000, H = 380, L = 64, R = 300, T = 28, B = 44;
   let x0, x1;
   if (measured.length === 0) { x0 = 0.01; x1 = 1; }
   else if (measured.length === 1) { x0 = measured[0].cost_usd * 0.4; x1 = measured[0].cost_usd * 2.5; }
   else { x0 = Math.min(...measured.map(c => c.cost_usd)) * 0.7; x1 = Math.max(...measured.map(c => c.cost_usd)) * 1.4; }
   const lx = (v) => Math.log10(Math.max(v, 1e-9));
   const px = (v) => L + (lx(v) - lx(x0)) / (lx(x1) - lx(x0)) * (W - L - R);
-  const py = (v) => H - B - (v / 100) * (H - T - B);
-  let parts = [];
-  for (let m = 0; m <= 100; m += 25) {
-    parts.push(`<line x1="${L}" y1="${py(m)}" x2="${W - R}" y2="${py(m)}" stroke="#1c1c1c"/>`);
-    parts.push(`<text x="${L - 10}" y="${py(m) + 3}" text-anchor="end">${m}</text>`);
+  let y0 = 0, y1 = 100;
+  if (measured.length) {
+    const marks = measured.map(c => c.mark);
+    let lo = Math.min(...marks), hi = Math.max(...marks);
+    if (hi - lo < 10) { const mid = (lo + hi) / 2; lo = mid - 5; hi = mid + 5; }
+    y0 = Math.max(0, Math.floor((lo - 3) / 5) * 5);
+    y1 = Math.min(100, Math.ceil((hi + 3) / 5) * 5);
+    if (y1 - y0 < 10) y1 = Math.min(100, y0 + 10);
   }
+  const py = (v) => H - B - ((v - y0) / (y1 - y0)) * (H - T - B);
+  const yStep = (y1 - y0) <= 20 ? 5 : (y1 - y0) <= 50 ? 10 : 25;
+  let parts = [];
+  for (let m = y0; m <= y1 + 0.001; m += yStep) {
+    parts.push(`<line x1="${L}" y1="${py(m)}" x2="${W - R}" y2="${py(m)}" stroke="#1c1c1c"/>`);
+    parts.push(`<text x="${L - 10}" y="${py(m) + 3}" text-anchor="end">${Math.round(m)}</text>`);
+  }
+  parts.push(`<text x="${L - 10}" y="${T - 12}" text-anchor="end">mark</text>`);
   const ticks = measured.length <= 1
     ? [x0, Math.sqrt(x0 * x1), x1]
     : Array.from({ length: 5 }, (_, i) => Math.pow(10, lx(x0) + (lx(x1) - lx(x0)) * i / 4));
   for (const t of ticks) {
     const x = px(t);
-    parts.push(`<line x1="${x}" y1="${py(0)}" x2="${x}" y2="${py(0) + 5}" stroke="#333"/>`);
+    parts.push(`<line x1="${x}" y1="${py(y0)}" x2="${x}" y2="${py(y0) + 5}" stroke="#333"/>`);
     parts.push(`<text x="${x}" y="${H - B + 20}" text-anchor="middle">${usd(t)}</text>`);
   }
   parts.push(`<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle">measured executor cost (USD, log)</text>`);
+  const placed = [];
   for (const c of measured) {
     const x = px(c.cost_usd), y = py(c.mark);
+    let ly = y + 3;
+    while (placed.some(p => Math.abs(p.x - x) < 170 && Math.abs(p.y - ly) < 12)) ly += 13;
+    if (ly > H - B + 6) ly = y - 8;
+    placed.push({ x, y: ly });
     parts.push(`<g class="pt${SELECTED === c.config ? " sel" : ""}" data-config="${esc(c.config)}">`
       + `<circle cx="${x}" cy="${y}" r="6"/>`
-      + `<text x="${x + 10}" y="${y + 3}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : ""} — ${c.mark}</text></g>`);
+      + `<text x="${x + 10}" y="${ly}">${esc(c.config)}${esc(vtag(c))}${c.partial ? " (partial)" : ""} — ${c.mark}</text></g>`);
   }
   svg.innerHTML = parts.join("");
   svg.querySelectorAll(".pt").forEach(g => g.addEventListener("click", () => select(g.dataset.config)));
