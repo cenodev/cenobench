@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-30T21:17:16+00:00",
+ "generated": "2026-09-30T23:35:24+00:00",
  "configs": [
   {
    "config": "fable-5.1+ethskills",
@@ -546,6 +546,46 @@
    "evals_total": 100
   },
   {
+   "config": "gpt-6-luna@xhigh",
+   "model": "codex/gpt-6-luna",
+   "harness": "codex",
+   "skill": null,
+   "variant": "xhigh",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 84.0,
+     "cost_usd": 10.6424,
+     "cost_source": "measured:codex-sessions",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": false,
+     "incomplete": false,
+     "dead": 0,
+     "evals_run": 100,
+     "evals_total": 100,
+     "observed_variants": [
+      "xhigh"
+     ],
+     "duration_s": 2979,
+     "exec_seconds": 11268.0,
+     "file": "runs/ethevals/gpt-6-luna-xhigh.json"
+    }
+   },
+   "mark": 84.0,
+   "cost_usd": 10.6424,
+   "duration_s": 2979,
+   "exec_seconds": 11268.0,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": false,
+   "incomplete": false,
+   "dead": 0,
+   "evals_run": 100,
+   "evals_total": 100
+  },
+  {
    "config": "muse-spark-1.3-contributor@xhigh",
    "model": "muse-spark-1.3-contributor",
    "harness": "opencode",
@@ -664,6 +704,86 @@
    "evals_total": 100
   },
   {
+   "config": "gpt-6-luna@high",
+   "model": "codex/gpt-6-luna",
+   "harness": "codex",
+   "skill": null,
+   "variant": "high",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 82.0,
+     "cost_usd": 4.0924,
+     "cost_source": "measured:codex-sessions",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": false,
+     "incomplete": false,
+     "dead": 0,
+     "evals_run": 100,
+     "evals_total": 100,
+     "observed_variants": [
+      "high"
+     ],
+     "duration_s": 1457,
+     "exec_seconds": 5436.2,
+     "file": "runs/ethevals/gpt-6-luna-high.json"
+    }
+   },
+   "mark": 82.0,
+   "cost_usd": 4.0924,
+   "duration_s": 1457,
+   "exec_seconds": 5436.2,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": false,
+   "incomplete": false,
+   "dead": 0,
+   "evals_run": 100,
+   "evals_total": 100
+  },
+  {
+   "config": "gpt-6-luna@max",
+   "model": "codex/gpt-6-luna",
+   "harness": "codex",
+   "skill": null,
+   "variant": "max",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 82.0,
+     "cost_usd": 23.2772,
+     "cost_source": "measured:codex-sessions",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": false,
+     "incomplete": false,
+     "dead": 0,
+     "evals_run": 100,
+     "evals_total": 100,
+     "observed_variants": [
+      "max"
+     ],
+     "duration_s": 3583,
+     "exec_seconds": 13745.7,
+     "file": "runs/ethevals/gpt-6-luna-max.json"
+    }
+   },
+   "mark": 82.0,
+   "cost_usd": 23.2772,
+   "duration_s": 3583,
+   "exec_seconds": 13745.7,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": false,
+   "incomplete": false,
+   "dead": 0,
+   "evals_run": 100,
+   "evals_total": 100
+  },
+  {
    "config": "glm-5.3-flash@max",
    "model": "opencode-go/glm-5.3-flash",
    "harness": "opencode",
@@ -704,6 +824,46 @@
    "evals_total": 100
   },
   {
+   "config": "gpt-6-luna@medium",
+   "model": "codex/gpt-6-luna",
+   "harness": "codex",
+   "skill": null,
+   "variant": "medium",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 71.0,
+     "cost_usd": 1.0167,
+     "cost_source": "measured:codex-sessions",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": false,
+     "incomplete": false,
+     "dead": 0,
+     "evals_run": 100,
+     "evals_total": 100,
+     "observed_variants": [
+      "medium"
+     ],
+     "duration_s": 849,
+     "exec_seconds": 3061.8,
+     "file": "runs/ethevals/gpt-6-luna-medium.json"
+    }
+   },
+   "mark": 71.0,
+   "cost_usd": 1.0167,
+   "duration_s": 849,
+   "exec_seconds": 3061.8,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": false,
+   "incomplete": false,
+   "dead": 0,
+   "evals_run": 100,
+   "evals_total": 100
+  },
+  {
    "config": "haiku-4.5+ethskills",
    "model": "haiku",
    "harness": "claude code",
@@ -739,6 +899,46 @@
    "incomplete": false,
    "dead": 0,
    "evals_run": 100,
+   "evals_total": 100
+  },
+  {
+   "config": "gpt-6-luna@low",
+   "model": "codex/gpt-6-luna",
+   "harness": "codex",
+   "skill": null,
+   "variant": "low",
+   "benchmarks": {
+    "ethevals": {
+     "name": "ETHEVALS",
+     "score": 64.0,
+     "cost_usd": 1.3219,
+     "cost_source": "measured:codex-sessions",
+     "manifest": "4aa67fc4f695",
+     "stale": false,
+     "partial": false,
+     "incomplete": true,
+     "dead": 1,
+     "evals_run": 99,
+     "evals_total": 100,
+     "observed_variants": [
+      "low"
+     ],
+     "duration_s": 768,
+     "exec_seconds": 2399.5,
+     "file": "runs/ethevals/gpt-6-luna-low.json"
+    }
+   },
+   "mark": 64.0,
+   "cost_usd": 1.3219,
+   "duration_s": 768,
+   "exec_seconds": 2399.5,
+   "benchmarks_scored": 1,
+   "cost_complete": true,
+   "stale": false,
+   "partial": false,
+   "incomplete": true,
+   "dead": 1,
+   "evals_run": 99,
    "evals_total": 100
   },
   {
